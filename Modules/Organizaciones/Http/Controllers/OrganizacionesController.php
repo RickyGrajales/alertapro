@@ -1,18 +1,18 @@
 <?php
 
-namespace Modules\Usuarios\Http\Controllers;
+namespace Modules\Organizaciones\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-class UsuariosController extends Controller
+class OrganizacionesController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return view('usuarios::index');
+        return view('organizaciones::index');
     }
 
     /**
@@ -20,7 +20,7 @@ class UsuariosController extends Controller
      */
     public function create()
     {
-        return view('usuarios::create');
+        return view('organizaciones::create');
     }
 
     /**
@@ -33,7 +33,7 @@ class UsuariosController extends Controller
      */
     public function show($id)
     {
-        return view('usuarios::show');
+        return view('organizaciones::show');
     }
 
     /**
@@ -41,7 +41,7 @@ class UsuariosController extends Controller
      */
     public function edit($id)
     {
-        return view('usuarios::edit');
+        return view('organizaciones::edit');
     }
 
     /**

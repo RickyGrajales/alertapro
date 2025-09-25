@@ -1,0 +1,11 @@
+{
+    "name": "Organizaciones",
+    "alias": "organizaciones",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Organizaciones\\Providers\\OrganizacionesServiceProvider"
+    ],
+    "files": []
+}

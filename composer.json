@@ -27,8 +27,8 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/",
-            "Modules\\": "Modules/",
-            "Modules\\Usuarios\\": "Modules/Usuarios/app/"
+            "Modules\\": "Modules/"
+            
         }
     },
     "autoload-dev": {
