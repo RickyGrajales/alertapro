@@ -1,47 +1,58 @@
-@extends('layouts.app')
+<x-app-layout>
+    <div class="max-w-2xl mx-auto py-6">
+        <div class="bg-white shadow rounded-lg p-6">
+            <h1 class="text-2xl font-bold text-blue-600 mb-6">Editar Usuario</h1>
 
-@section('content')
-<div class="container">
-    <h1 class="mb-4">Editar Usuario</h1>
+            <form action="{{ route('usuarios.update', $usuario->id) }}" method="POST" class="space-y-4">
+                @csrf
+                @method('PUT')
 
-    <form action="{{ route('usuarios.update', $usuario->id) }}" method="POST">
-        @csrf
-        @method('PUT')
+                <div>
+                    <label class="block text-gray-700">Nombre</label>
+                    <input type="text" name="nombre" value="{{ $usuario->nombre }}" required 
+                           class="w-full border-gray-300 rounded-lg shadow-sm">
+                </div>
 
-        <div class="mb-3">
-            <label for="nombre" class="form-label">Nombre</label>
-            <input type="text" name="nombre" id="nombre" class="form-control" value="{{ $usuario->nombre }}" required>
+                <div>
+                    <label class="block text-gray-700">Correo</label>
+                    <input type="email" name="email" value="{{ $usuario->email }}" required 
+                           class="w-full border-gray-300 rounded-lg shadow-sm">
+                </div>
+
+                <div>
+                    <label class="block text-gray-700">Rol</label>
+                    <select name="rol" class="w-full border-gray-300 rounded-lg shadow-sm">
+                        <option value="Empleado" @selected($usuario->rol === 'Empleado')>Empleado</option>
+                        <option value="Supervisor" @selected($usuario->rol === 'Supervisor')>Supervisor</option>
+                        <option value="Admin" @selected($usuario->rol === 'Admin')>Admin</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-gray-700">Activo</label>
+                    <select name="activo" class="w-full border-gray-300 rounded-lg shadow-sm">
+                        <option value="1" @selected($usuario->activo)>Sí</option>
+                        <option value="0" @selected(!$usuario->activo)>No</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-gray-700">Organización</label>
+                    <input type="number" name="organizacion_id" value="{{ $usuario->organizacion_id }}" 
+                           class="w-full border-gray-300 rounded-lg shadow-sm">
+                </div>
+
+                <div class="flex space-x-4">
+                    <button type="submit" 
+                            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                        Actualizar
+                    </button>
+                    <a href="{{ route('usuarios.index') }}" 
+                       class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
         </div>
-
-        <div class="mb-3">
-            <label for="email" class="form-label">Correo</label>
-            <input type="email" name="email" id="email" class="form-control" value="{{ $usuario->email }}" required>
-        </div>
-
-        <div class="mb-3">
-            <label for="rol" class="form-label">Rol</label>
-            <select name="rol" id="rol" class="form-select" required>
-                <option value="Empleado" @if($usuario->rol == 'Empleado') selected @endif>Empleado</option>
-                <option value="Supervisor" @if($usuario->rol == 'Supervisor') selected @endif>Supervisor</option>
-                <option value="Admin" @if($usuario->rol == 'Admin') selected @endif>Admin</option>
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label for="activo" class="form-label">Activo</label>
-            <select name="activo" id="activo" class="form-select">
-                <option value="1" @if($usuario->activo) selected @endif>Sí</option>
-                <option value="0" @if(!$usuario->activo) selected @endif>No</option>
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label for="organizacion_id" class="form-label">Organización</label>
-            <input type="number" name="organizacion_id" id="organizacion_id" class="form-control" value="{{ $usuario->organizacion_id }}">
-        </div>
-
-        <button type="submit" class="btn btn-primary">Actualizar</button>
-        <a href="{{ route('usuarios.index') }}" class="btn btn-secondary">Cancelar</a>
-    </form>
-</div>
-@endsection
+    </div>
+</x-app-layout>

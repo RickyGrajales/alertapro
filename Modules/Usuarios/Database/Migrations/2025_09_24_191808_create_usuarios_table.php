@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('nombre', 100);
             $table->string('email')->unique();
             $table->string('password');
+            $table->rememberToken();
             $table->enum('rol', ['Admin', 'Empleado', 'Supervisor'])->default('Empleado');
             $table->boolean('activo')->default(true);
             $table->unsignedBigInteger('organizacion_id')->nullable();

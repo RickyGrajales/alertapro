@@ -1,52 +1,80 @@
-@extends('layouts.app')
+<x-app-layout>
+    <div class="max-w-2xl mx-auto py-6">
+        <div class="bg-white shadow rounded-lg p-6">
+            <h1 class="text-2xl font-bold text-blue-600 mb-6">Crear Usuario</h1>
 
-@section('content')
-<div class="container">
-    <h1 class="mb-4">Crear Usuario</h1>
+            <form action="{{ route('usuarios.store') }}" method="POST" class="space-y-4">
+                @csrf
 
-    <form action="{{ route('usuarios.store') }}" method="POST">
-        @csrf
+                @if ($errors->any())
+    <div class="mb-4 p-3 bg-red-100 text-red-700 rounded">
+        <ul class="list-disc pl-5">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 
-        <div class="mb-3">
-            <label for="nombre" class="form-label">Nombre</label>
-            <input type="text" name="nombre" id="nombre" class="form-control" required>
+@if (session('success'))
+    <div class="mb-4 p-3 bg-green-100 text-green-700 rounded">
+        {{ session('success') }}
+    </div>
+@endif
+
+
+                <div>
+                    <label class="block text-gray-700">Nombre</label>
+                    <input type="text" name="nombre" required 
+                           class="w-full border-gray-300 rounded-lg shadow-sm">
+                </div>
+
+                <div>
+                    <label class="block text-gray-700">Correo</label>
+                    <input type="email" name="email" required 
+                           class="w-full border-gray-300 rounded-lg shadow-sm">
+                </div>
+
+                <div>
+                    <label class="block text-gray-700">Contraseña</label>
+                    <input type="password" name="password" required 
+                           class="w-full border-gray-300 rounded-lg shadow-sm">
+                </div>
+
+                <div>
+                    <label class="block text-gray-700">Rol</label>
+                    <select name="rol" required class="w-full border-gray-300 rounded-lg shadow-sm">
+                        <option value="Empleado">Empleado</option>
+                        <option value="Supervisor">Supervisor</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-gray-700">Activo</label>
+                    <select name="activo" class="w-full border-gray-300 rounded-lg shadow-sm">
+                        <option value="1">Sí</option>
+                        <option value="0">No</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-gray-700">Organización</label>
+                    <input type="number" name="organizacion_id" 
+                           class="w-full border-gray-300 rounded-lg shadow-sm">
+                </div>
+
+                <div class="flex space-x-4">
+                    <button type="submit" 
+                            class="bg-green-600 text-black px-4 py-2 rounded hover:bg-green-700">
+                        Guardar
+                    </button>
+                    <a href="{{ route('usuarios.index') }}" 
+                       class="bg-gray-600 text-black px-4 py-2 rounded hover:bg-gray-700">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
         </div>
-
-        <div class="mb-3">
-            <label for="email" class="form-label">Correo</label>
-            <input type="email" name="email" id="email" class="form-control" required>
-        </div>
-
-        <div class="mb-3">
-            <label for="password" class="form-label">Contraseña</label>
-            <input type="password" name="password" id="password" class="form-control" required>
-        </div>
-
-        <div class="mb-3">
-            <label for="rol" class="form-label">Rol</label>
-            <select name="rol" id="rol" class="form-select" required>
-                <option value="Empleado">Empleado</option>
-                <option value="Supervisor">Supervisor</option>
-                <option value="Admin">Admin</option>
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label for="activo" class="form-label">Activo</label>
-            <select name="activo" id="activo" class="form-select">
-                <option value="1">Sí</option>
-                <option value="0">No</option>
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label for="organizacion_id" class="form-label">Organización</label>
-            <input type="number" name="organizacion_id" id="organizacion_id" class="form-control">
-            <small class="form-text text-muted">Ingresa el ID de la organización (por ahora manual).</small>
-        </div>
-
-        <button type="submit" class="btn btn-success">Guardar</button>
-        <a href="{{ route('usuarios.index') }}" class="btn btn-secondary">Cancelar</a>
-    </form>
-</div>
-@endsection
+    </div>
+</x-app-layout>

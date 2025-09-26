@@ -2,55 +2,62 @@
 
 namespace Modules\Organizaciones\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
+use Modules\Organizaciones\Models\Organizacion;
 
 class OrganizacionesController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        return view('organizaciones::index');
+        $organizaciones = Organizacion::all();
+        return view('organizaciones::index', compact('organizaciones'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return view('organizaciones::create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request) {}
-
-    /**
-     * Show the specified resource.
-     */
-    public function show($id)
+    public function store(Request $request)
     {
-        return view('organizaciones::show');
+        $request->validate([
+            'nombre' => 'required|string|max:150',
+            'nit' => 'required|string|max:20|unique:organizaciones,nit',
+            'email' => 'required|email|unique:organizaciones,email',
+        ]);
+
+        Organizacion::create($request->all());
+
+        return redirect()->route('organizaciones.index')->with('success', 'Organización creada correctamente');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit($id)
+    public function show(Organizacion $organizacion)
     {
-        return view('organizaciones::edit');
+        return view('organizaciones::show', compact('organizacion'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id) {}
+    public function edit(Organizacion $organizacion)
+    {
+        return view('organizaciones::edit', compact('organizacion'));
+    }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id) {}
+    public function update(Request $request, Organizacion $organizacion)
+    {
+        $request->validate([
+            'nombre' => 'required|string|max:150',
+            'nit' => 'required|string|max:20|unique:organizaciones,nit,' . $organizacion->id,
+            'email' => 'required|email|unique:organizaciones,email,' . $organizacion->id,
+        ]);
+
+        $organizacion->update($request->all());
+
+        return redirect()->route('organizaciones.index')->with('success', 'Organización actualizada correctamente');
+    }
+
+    public function destroy(Organizacion $organizacion)
+    {
+        $organizacion->delete();
+        return redirect()->route('organizaciones.index')->with('success', 'Organización eliminada correctamente');
+    }
 }
