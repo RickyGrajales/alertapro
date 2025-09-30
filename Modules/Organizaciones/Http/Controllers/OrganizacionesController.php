@@ -2,15 +2,16 @@
 
 namespace Modules\Organizaciones\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
 use Modules\Organizaciones\Models\Organizacion;
+use Illuminate\Routing\Controller;
+use Modules\Organizaciones\Http\Requests\OrganizacionRequest;
+use Illuminate\Http\Request;
 
 class OrganizacionesController extends Controller
 {
     public function index()
     {
-        $organizaciones = Organizacion::all();
+        $organizaciones = Organizacion::orderBy('nombre')->get();
         return view('organizaciones::index', compact('organizaciones'));
     }
 
@@ -19,16 +20,9 @@ class OrganizacionesController extends Controller
         return view('organizaciones::create');
     }
 
-    public function store(Request $request)
+    public function store(OrganizacionRequest $request)
     {
-        $request->validate([
-            'nombre' => 'required|string|max:150',
-            'nit' => 'required|string|max:20|unique:organizaciones,nit',
-            'email' => 'required|email|unique:organizaciones,email',
-        ]);
-
-        Organizacion::create($request->all());
-
+        Organizacion::create($request->validated());
         return redirect()->route('organizaciones.index')->with('success', 'Organización creada correctamente');
     }
 
@@ -42,16 +36,9 @@ class OrganizacionesController extends Controller
         return view('organizaciones::edit', compact('organizacion'));
     }
 
-    public function update(Request $request, Organizacion $organizacion)
+    public function update(OrganizacionRequest $request, Organizacion $organizacion)
     {
-        $request->validate([
-            'nombre' => 'required|string|max:150',
-            'nit' => 'required|string|max:20|unique:organizaciones,nit,' . $organizacion->id,
-            'email' => 'required|email|unique:organizaciones,email,' . $organizacion->id,
-        ]);
-
-        $organizacion->update($request->all());
-
+        $organizacion->update($request->validated());
         return redirect()->route('organizaciones.index')->with('success', 'Organización actualizada correctamente');
     }
 

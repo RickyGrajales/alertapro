@@ -12,7 +12,8 @@ class OrganizacionesDatabaseSeeder extends Seeder
     public function run(): void
     {
         // $this->call([]);
-        $this->call(OrganizacionSeeder::class);
-
+        $this->call([
+            OrganizacionSeeder::class,
+        ]);
     }
 }

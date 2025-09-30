@@ -6,6 +6,8 @@
     "priority": 0,
     "providers": [
         "Modules\\Organizaciones\\Providers\\OrganizacionesServiceProvider"
+       
+
     ],
     "files": []
 }

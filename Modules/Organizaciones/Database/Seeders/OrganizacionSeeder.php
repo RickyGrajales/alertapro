@@ -3,82 +3,65 @@
 namespace Modules\Organizaciones\Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Carbon;
+use Modules\Organizaciones\Models\Organizacion;
 
 class OrganizacionSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('organizaciones')->insert([
+        $examples = [
             [
                 'nombre' => 'ASODISVALLE',
-                'nit' => '900123456-1',
-                'tipo' => 'Fundación',
-                'representante' => 'Jeison Aristizábal',
-                'email' => 'contacto@asodisvalle.org',
-                'telefono' => '3001234567',
-                'direccion' => 'Cali - Valle del Cauca',
-                'ciudad' => 'Cali',
-                'departamento' => 'Valle del Cauca',
-                'pagina_web' => 'https://asodisvalle.org',
-                'logo' => null,
-                'descripcion' => 'Asociación para personas con discapacidad en el Valle.',
-                'activo' => true,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ],
-            [
-                'nombre' => 'Fundación Atrapasueños',
-                'nit' => '900654321-2',
+                'nit' => '900000001',
                 'tipo' => 'ONG',
-                'representante' => 'María Fernanda López',
+                'representante' => 'Director ASODISVALLE',
+                'email' => 'contacto@asodisvalle.org',
+                'telefono' => '3120000001',
+                'ciudad' => 'Cali',
+                'departamento' => 'Valle del Cauca',
+                'descripcion' => 'Organización de la sociedad civil ASODISVALLE',
+                'activo' => true
+            ],
+            [
+                'nombre' => 'ATRAPASUEÑOS',
+                'nit' => '900000002',
+                'tipo' => 'Fundación',
+                'representante' => 'Director Atrapasuños',
                 'email' => 'info@atrapasuenos.org',
-                'telefono' => '3109876543',
-                'direccion' => 'Cra 10 #20-30',
-                'ciudad' => 'Palmira',
+                'telefono' => '3120000002',
+                'ciudad' => 'Cali',
                 'departamento' => 'Valle del Cauca',
-                'pagina_web' => null,
-                'logo' => null,
-                'descripcion' => 'Fundación dedicada a proyectos educativos y culturales.',
-                'activo' => true,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
+                'descripcion' => 'Fundación Atrapasuños',
+                'activo' => true
             ],
             [
-                'nombre' => 'Colegio Porfirio Barba Jacob',
-                'nit' => '811223344-5',
+                'nombre' => 'COLEGIO PORFIRIO BARBA JACOB',
+                'nit' => '900000003',
                 'tipo' => 'Colegio',
-                'representante' => 'Carlos Restrepo',
-                'email' => 'colegio@barbajacob.edu.co',
-                'telefono' => '6021234567',
-                'direccion' => 'Cl 45 #23-50',
+                'representante' => 'Rector Colegio',
+                'email' => 'colegio@porfirio.edu.co',
+                'telefono' => '3120000003',
                 'ciudad' => 'Cali',
                 'departamento' => 'Valle del Cauca',
-                'pagina_web' => 'https://barbajacob.edu.co',
-                'logo' => null,
-                'descripcion' => 'Institución educativa reconocida en la región.',
-                'activo' => true,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
+                'descripcion' => 'Colegio Porfirio Barba Jacob',
+                'activo' => true
             ],
             [
-                'nombre' => 'Universidad Jeison Aristizábal',
-                'nit' => '901112223-6',
+                'nombre' => 'UNIVERSIDAD JEISON ARISTIZABAL',
+                'nit' => '900000004',
                 'tipo' => 'Universidad',
-                'representante' => 'Jeison Aristizábal',
-                'email' => 'rectoria@uja.edu.co',
-                'telefono' => '6012345678',
-                'direccion' => 'Av. Principal #100-200',
+                'representante' => 'Rector Universidad',
+                'email' => 'info@jeison.edu.co',
+                'telefono' => '3120000004',
                 'ciudad' => 'Cali',
                 'departamento' => 'Valle del Cauca',
-                'pagina_web' => 'https://uja.edu.co',
-                'logo' => null,
-                'descripcion' => 'Universidad inclusiva fundada por Jeison Aristizábal.',
-                'activo' => true,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
+                'descripcion' => 'Universidad Jeison Aristizabal',
+                'activo' => true
             ],
-        ]);
+        ];
+
+        foreach ($examples as $data) {
+            Organizacion::firstOrCreate(['nit' => $data['nit']], $data);
+        }
     }
 }

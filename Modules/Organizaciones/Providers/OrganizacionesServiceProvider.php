@@ -26,10 +26,7 @@ class OrganizacionesServiceProvider extends ServiceProvider
         $this->registerTranslations();
         $this->registerConfig();
         $this->registerViews();
-
-    // Aquí el fix
-    $this->loadMigrationsFrom(module_path($this->name, 'Database/Migrations'));
-        
+        $this->loadMigrationsFrom(module_path($this->name, 'database/migrations'));
     }
 
     /**
