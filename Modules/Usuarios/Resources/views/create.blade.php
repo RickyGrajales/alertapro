@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="max-w-2xl mx-auto py-6">
         <div class="bg-white shadow rounded-lg p-6">
-            <h1 class="text-2xl font-bold text-blue-600 mb-6">Crear Usuario</h1>
+            <h1 class="text-2xl font-bold text-black-600 mb-6">Crear Usuario</h1>
 
             <form action="{{ route('usuarios.store') }}" method="POST" class="space-y-4">
                 @csrf
@@ -45,7 +45,6 @@
                     <label class="block text-gray-700">Rol</label>
                     <select name="rol" required class="w-full border-gray-300 rounded-lg shadow-sm">
                         <option value="Empleado">Empleado</option>
-                        <option value="Supervisor">Supervisor</option>
                         <option value="Admin">Admin</option>
                     </select>
                 </div>

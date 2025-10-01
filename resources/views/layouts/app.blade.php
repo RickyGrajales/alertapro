@@ -36,11 +36,26 @@
             </form>
         </aside>
 
-        <!-- Contenido principal -->
-        <main class="flex-1 p-6 bg-gray-50 text-gray-800">
-            {{ $slot ?? '' }}
-            @yield('content')
-        </main>
+        <!-- Contenedor principal -->
+        <div class="flex-1 flex flex-col">
+            <!-- Header -->
+            <header class="flex justify-end items-center bg-white shadow px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <span class="font-semibold text-gray-800">
+                        👤 {{ auth()->user()->nombre }}
+                    </span>
+                    <span class="text-sm text-gray-500">
+                        Rol: {{ auth()->user()->rol ?? auth()->user()->getRoleNames()->first() }}
+                    </span>
+                </div>
+            </header>
+
+            <!-- Contenido -->
+            <main class="flex-1 p-6 bg-gray-50 text-gray-800">
+                {{ $slot ?? '' }}
+                @yield('content')
+            </main>
+        </div>
     </div>
 </body>
 </html>

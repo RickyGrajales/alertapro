@@ -23,7 +23,6 @@
                     <label class="block text-gray-700">Rol</label>
                     <select name="rol" class="w-full border-gray-300 rounded-lg shadow-sm">
                         <option value="Empleado" @selected($usuario->rol === 'Empleado')>Empleado</option>
-                        <option value="Supervisor" @selected($usuario->rol === 'Supervisor')>Supervisor</option>
                         <option value="Admin" @selected($usuario->rol === 'Admin')>Admin</option>
                     </select>
                 </div>
@@ -44,11 +43,11 @@
 
                 <div class="flex space-x-4">
                     <button type="submit" 
-                            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                            class="bg-blue-600 text-black px-4 py-2 rounded hover:bg-blue-700">
                         Actualizar
                     </button>
                     <a href="{{ route('usuarios.index') }}" 
-                       class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">
+                       class="bg-blue-600 text-black px-4 py-2 rounded hover:bg-blue-700">
                         Cancelar
                     </a>
                 </div>

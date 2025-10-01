@@ -9,6 +9,13 @@ use Illuminate\Http\Request;
 
 class OrganizacionesController extends Controller
 {
+   public function __construct()
+    {
+    // Solo Admin puede acceder a todo lo que no sea index y show
+        $this->middleware('role:Admin')->except(['index', 'show']);
+    }
+
+
     public function index()
     {
         $organizaciones = Organizacion::orderBy('nombre')->get();
@@ -20,9 +27,23 @@ class OrganizacionesController extends Controller
         return view('organizaciones::create');
     }
 
-    public function store(OrganizacionRequest $request)
+    public function store(Request $request)
     {
-        Organizacion::create($request->validated());
+        $request->validate([
+            'nombre' => 'required|string|max:150',
+            'nit' => 'required|string|max:20|unique:organizaciones,nit',
+            'email' => 'nullable|email|unique:organizaciones,email',
+            'logo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        $data = $request->all();
+
+        if ($request->hasFile('logo')) {
+            $data['logo'] = $request->file('logo')->store('logos', 'public');
+        }
+
+        Organizacion::create($data);
+
         return redirect()->route('organizaciones.index')->with('success', 'Organización creada correctamente');
     }
 

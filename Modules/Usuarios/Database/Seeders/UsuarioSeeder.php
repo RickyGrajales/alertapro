@@ -11,17 +11,16 @@ class UsuarioSeeder extends Seeder
 {
     public function run(): void
     {
-        // Crear roles si no existen
+        // Crear roles
         $adminRole = Role::firstOrCreate(['name' => 'Admin']);
         $empleadoRole = Role::firstOrCreate(['name' => 'Empleado']);
-        $supervisorRole = Role::firstOrCreate(['name' => 'Supervisor']);
 
-        // Crear usuario Admin inicial
+        // Crear usuario Admin inicial (Don Jimmy)
         $admin = Usuario::firstOrCreate(
             ['email' => 'admin@alertapro.com'],
             [
-                'nombre' => 'Administrador General',
-                'password' => Hash::make('password123'),
+                'nombre' => 'Jimmmy Aristizabal',
+                'password' => Hash::make('123456'),
                 'rol' => 'Admin',
                 'activo' => true,
                 'organizacion_id' => null,
@@ -29,25 +28,12 @@ class UsuarioSeeder extends Seeder
         );
         $admin->assignRole($adminRole);
 
-        // Crear supervisor de ejemplo
-        $supervisor = Usuario::firstOrCreate(
-            ['email' => 'supervisor@alertapro.com'],
-            [
-                'nombre' => 'Supervisor Demo',
-                'password' => Hash::make('password123'),
-                'rol' => 'Supervisor',
-                'activo' => true,
-                'organizacion_id' => null,
-            ]
-        );
-        $supervisor->assignRole($supervisorRole);
-
         // Crear empleado de ejemplo
         $empleado = Usuario::firstOrCreate(
             ['email' => 'empleado@alertapro.com'],
             [
                 'nombre' => 'Empleado Demo',
-                'password' => Hash::make('password123'),
+                'password' => Hash::make('123456'),
                 'rol' => 'Empleado',
                 'activo' => true,
                 'organizacion_id' => null,

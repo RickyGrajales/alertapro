@@ -9,11 +9,32 @@ use Illuminate\Support\Facades\Hash;
 
 class UsuariosController extends Controller
 {
-    public function index()
+
+    public function __construct()
     {
-        $usuarios = Usuario::with('organizacion')->get();
-        return view('usuarios::index', compact('usuarios'));
+        $this->middleware('role:Admin')->except(['index', 'show']);
     }
+
+
+    public function index(Request $request)
+{
+    $query = Usuario::with('organizacion');
+
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where('nombre', 'like', "%{$search}%")
+              ->orWhere('email', 'like', "%{$search}%")
+              ->orWhere('rol', 'like', "%{$search}%")
+              ->orWhereHas('organizacion', function ($q) use ($search) {
+                  $q->where('nombre', 'like', "%{$search}%");
+              });
+    }
+
+    $usuarios = $query->orderBy('id', 'desc')->paginate(10);
+
+    return view('usuarios::index', compact('usuarios'));
+}
+
 
     public function create()
     {
@@ -26,7 +47,7 @@ class UsuariosController extends Controller
             'nombre' => 'required|string|max:100',
             'email' => 'required|email|unique:usuarios,email',
             'password' => 'required|min:6',
-            'rol' => 'required|in:Admin,Empleado,Supervisor',
+            'rol' => 'required|in:Admin,Empleado',
         ]);
 
         Usuario::create([
@@ -61,7 +82,7 @@ class UsuariosController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:100',
             'email' => 'required|email|unique:usuarios,email,' . $usuario->id,
-            'rol' => 'required|in:Admin,Empleado,Supervisor',
+            'rol' => 'required|in:Admin,Empleado',
         ]);
 
         $usuario->nombre = $request->nombre;

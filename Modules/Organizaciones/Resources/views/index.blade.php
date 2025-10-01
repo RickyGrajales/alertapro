@@ -3,8 +3,8 @@
         <div class="bg-white shadow rounded-lg p-6">
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-2xl font-bold text-blue-600">Organizaciones</h1>
-                @role('Admin|Supervisor')
-                <a href="{{ route('organizaciones.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">➕ Crear</a>
+                @role('Admin')
+                <a href="{{ route('organizaciones.create') }}" class="bg-blue-600 text-black px-4 py-2 rounded hover:bg-blue-700">➕ Crear Organización</a>
                 @endrole
             </div>
 
@@ -36,7 +36,7 @@
                             <td class="px-4 py-2">{{ $org->activo ? 'Sí' : 'No' }}</td>
                             <td class="px-4 py-2 flex space-x-2">
                                 <a href="{{ route('organizaciones.show', $org->id) }}" class="text-blue-600 hover:underline">Ver</a>
-                                @role('Admin|Supervisor')
+                                @role('Admin')
                                 <a href="{{ route('organizaciones.edit', $org->id) }}" class="text-yellow-600 hover:underline">Editar</a>
                                 <form action="{{ route('organizaciones.destroy', $org->id) }}" method="POST" onsubmit="return confirm('Eliminar?')" class="inline">
                                     @csrf

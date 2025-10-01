@@ -16,14 +16,14 @@
 
             <div class="flex space-x-4 mt-6">
                 <a href="{{ route('usuarios.index') }}" 
-                   class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">Volver</a>
+                   class="bg-gray-600 text-black px-4 py-2 rounded hover:bg-gray-700">Volver</a>
                 <a href="{{ route('usuarios.edit', $usuario->id) }}" 
-                   class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Editar</a>
+                   class="bg-blue-600 text-black px-4 py-2 rounded hover:bg-blue-700">Editar</a>
                 <form action="{{ route('usuarios.destroy', $usuario->id) }}" method="POST" 
                       onsubmit="return confirm('¿Seguro de eliminar este usuario?')">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                    <button type="submit" class="bg-red-600 text-black px-4 py-2 rounded hover:bg-red-700">
                         Eliminar
                     </button>
                 </form>
