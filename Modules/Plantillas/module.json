@@ -1,0 +1,11 @@
+{
+    "name": "Plantillas",
+    "alias": "plantillas",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Plantillas\\Providers\\PlantillasServiceProvider"
+    ],
+    "files": []
+}

@@ -1,4 +1,5 @@
 {
     "Usuarios": true,
-    "Organizaciones": true
+    "Organizaciones": true,
+    "Plantillas": true
 }
