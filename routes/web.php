@@ -9,8 +9,9 @@ use App\Http\Controllers\ProfileController;
 | Rutas públicas
 |--------------------------------------------------------------------------
 */
+
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
 // Login y logout
