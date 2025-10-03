@@ -15,20 +15,28 @@
             <div class="p-6 text-2xl font-bold border-b border-blue-600">
                 {{ config('app.name', 'AlertaPro') }}
             </div>
-            <nav class="flex-1 p-4 space-y-2">
-                <a href="{{ route('dashboard') }}" 
-                   class="block px-4 py-2 rounded hover:bg-blue-600 hover:text-white">
-                    📊 Dashboard
-                </a>
-                <a href="{{ route('usuarios.index') }}" 
-                   class="block px-4 py-2 rounded hover:bg-blue-600 hover:text-white">
-                    👥 Usuarios
-                </a>
-                <a href="{{ route('organizaciones.index') }}" 
-                   class="block px-4 py-2 rounded hover:bg-blue-600 hover:text-white">
-                    🏢 Organizaciones
-                </a>
-            </nav>
+          <nav class="flex-1 p-4 space-y-2">
+    <a href="{{ route('dashboard') }}" 
+       class="block px-4 py-2 rounded hover:bg-blue-600 hover:text-white">
+        📊 Dashboard
+    </a>
+    <a href="{{ route('usuarios.index') }}" 
+       class="block px-4 py-2 rounded hover:bg-blue-600 hover:text-white">
+        👥 Usuarios
+    </a>
+    <a href="{{ route('organizaciones.index') }}" 
+       class="block px-4 py-2 rounded hover:bg-blue-600 hover:text-white">
+        🏢 Organizaciones
+    </a>
+
+    @role('Admin')
+    <a href="{{ route('plantillas.index') }}" 
+       class="block px-4 py-2 rounded hover:bg-blue-600 hover:text-white">
+        📑 Plantillas
+    </a>
+    @endrole
+</nav>
+
             <form method="POST" action="{{ route('logout') }}" class="p-4 border-t border-blue-600">
                 @csrf
                 <button type="submit" 

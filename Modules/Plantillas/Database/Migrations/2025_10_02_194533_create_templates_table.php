@@ -13,7 +13,10 @@ return new class extends Migration
     {
         Schema::create('templates', function (Blueprint $table) {
             $table->id();
-            
+            $table->string('nombre')->unique();
+            $table->text('descripcion')->nullable();
+            $table->enum('recurrencia', ['diaria','semanal','mensual','anual'])->default('mensual');
+            $table->boolean('activo')->default(true);
             $table->timestamps();
         });
     }

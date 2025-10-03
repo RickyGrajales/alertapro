@@ -13,7 +13,10 @@ return new class extends Migration
     {
         Schema::create('notification_rules', function (Blueprint $table) {
             $table->id();
-            
+            $table->foreignId('template_id')->constrained('templates')->onDelete('cascade');
+            $table->enum('canal', ['email','whatsapp','sistema'])->default('email');
+            $table->integer('offset')->comment('Días antes (-) o después (+) del evento');
+            $table->string('mensaje')->nullable();            
             $table->timestamps();
         });
     }

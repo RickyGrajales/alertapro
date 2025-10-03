@@ -2,55 +2,149 @@
 
 namespace Modules\Plantillas\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
+use Modules\Plantillas\Models\Template;
 
 class PlantillasController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // 📑 Listado
     public function index()
     {
-        return view('plantillas::index');
+        $plantillas = Template::withCount('items')->orderBy('created_at','desc')->paginate(10);
+        return view('plantillas::index', compact('plantillas'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    // ➕ Crear
     public function create()
     {
         return view('plantillas::create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request) {}
-
-    /**
-     * Show the specified resource.
-     */
-    public function show($id)
+    // 💾 Guardar nueva
+    public function store(Request $request)
     {
-        return view('plantillas::show');
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255|unique:templates,nombre',
+            'descripcion' => 'nullable|string',
+            'recurrencia' => 'required|in:diaria,semanal,mensual,trimestral,anual',
+            'items.*.nombre' => 'required|string|max:255',
+            'items.*.descripcion' => 'nullable|string',
+            'items.*.obligatorio' => 'nullable|boolean',
+            'rules.*.canal' => 'required|in:email,whatsapp,sistema',
+            'rules.*.offset' => 'required|integer|min:-30|max:30',
+            'rules.*.mensaje' => 'required|string|max:500',
+        ], [
+            'rules.*.offset.min' => 'El número de días de aviso no puede ser menor a -30.',
+            'rules.*.offset.max' => 'El número de días de aviso no puede ser mayor a 30.',
+            'rules.*.mensaje.required' => 'Cada regla debe tener un mensaje.',
+        ]);
+
+        $plantilla = Template::create([
+            'nombre' => $validated['nombre'],
+            'descripcion' => $validated['descripcion'] ?? null,
+            'recurrencia' => $validated['recurrencia'],
+            'activo' => $request->has('activo'),
+        ]);
+
+        // Guardar ítems
+        if ($request->has('items')) {
+            foreach ($request->items as $itemData) {
+                $plantilla->items()->create([
+                    'nombre' => $itemData['nombre'],
+                    'descripcion' => $itemData['descripcion'] ?? null,
+                    'orden' => $itemData['orden'] ?? 1,
+                    'obligatorio' => isset($itemData['obligatorio']),
+                ]);
+            }
+        }
+
+        // Guardar reglas
+        if ($request->has('rules')) {
+            foreach ($request->rules as $ruleData) {
+                $plantilla->rules()->create([
+                    'canal' => $ruleData['canal'],
+                    'offset' => $ruleData['offset'],
+                    'mensaje' => $ruleData['mensaje'],
+                ]);
+            }
+        }
+
+        return redirect()->route('plantillas.index')->with('success', 'Plantilla creada con éxito ✅');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit($id)
+    // 👁 Ver detalle
+    public function show(Template $plantilla)
     {
-        return view('plantillas::edit');
+        $plantilla->load(['items', 'rules']);
+        return view('plantillas::show', compact('plantilla'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id) {}
+    // ✏ Editar
+    public function edit(Template $plantilla)
+    {
+        $plantilla->load(['items', 'rules']);
+        return view('plantillas::edit', compact('plantilla'));
+    }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id) {}
+    // 🔄 Actualizar
+    public function update(Request $request, Template $plantilla)
+    {
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255|unique:templates,nombre,' . $plantilla->id,
+            'descripcion' => 'nullable|string',
+            'recurrencia' => 'required|in:diaria,semanal,mensual,trimestral,anual',
+            'items.*.nombre' => 'required|string|max:255',
+            'items.*.descripcion' => 'nullable|string',
+            'items.*.obligatorio' => 'nullable|boolean',
+            'rules.*.canal' => 'required|in:email,whatsapp,sistema',
+            'rules.*.offset' => 'required|integer|min:-30|max:30',
+            'rules.*.mensaje' => 'required|string|max:500',
+        ], [
+            'rules.*.offset.min' => 'El número de días de aviso no puede ser menor a -30.',
+            'rules.*.offset.max' => 'El número de días de aviso no puede ser mayor a 30.',
+            'rules.*.mensaje.required' => 'Cada regla debe tener un mensaje.',
+        ]);
+
+        $plantilla->update([
+            'nombre' => $validated['nombre'],
+            'descripcion' => $validated['descripcion'] ?? null,
+            'recurrencia' => $validated['recurrencia'],
+            'activo' => $request->has('activo'),
+        ]);
+
+        // 📋 Actualizar ítems → borrar y recrear
+        $plantilla->items()->delete();
+        if ($request->has('items')) {
+            foreach ($request->items as $itemData) {
+                $plantilla->items()->create([
+                    'nombre' => $itemData['nombre'],
+                    'descripcion' => $itemData['descripcion'] ?? null,
+                    'orden' => $itemData['orden'] ?? 1,
+                    'obligatorio' => isset($itemData['obligatorio']),
+                ]);
+            }
+        }
+
+        // 🔔 Actualizar reglas → borrar y recrear
+        $plantilla->rules()->delete();
+        if ($request->has('rules')) {
+            foreach ($request->rules as $ruleData) {
+                $plantilla->rules()->create([
+                    'canal' => $ruleData['canal'],
+                    'offset' => $ruleData['offset'],
+                    'mensaje' => $ruleData['mensaje'],
+                ]);
+            }
+        }
+
+        return redirect()->route('plantillas.index')->with('success', 'Plantilla actualizada correctamente ✏️');
+    }
+
+    // 🗑 Eliminar
+    public function destroy(Template $plantilla)
+    {
+        $plantilla->delete();
+        return redirect()->route('plantillas.index')->with('success', 'Plantilla eliminada 🚮');
+    }
 }

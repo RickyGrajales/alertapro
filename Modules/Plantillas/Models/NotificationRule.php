@@ -4,19 +4,23 @@ namespace Modules\Plantillas\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-// use Modules\Plantillas\Database\Factories\NotificationRuleFactory;
 
 class NotificationRule extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     */
-    protected $fillable = [];
+    protected $table = 'notification_rules';
 
-    // protected static function newFactory(): NotificationRuleFactory
-    // {
-    //     // return NotificationRuleFactory::new();
-    // }
+    protected $fillable = [
+        'template_id',
+        'canal',
+        'offset',
+        'mensaje',
+    ];
+
+    // Relación inversa
+    public function template()
+    {
+        return $this->belongsTo(Template::class, 'template_id');
+    }
 }

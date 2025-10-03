@@ -13,7 +13,11 @@ return new class extends Migration
     {
         Schema::create('template_items', function (Blueprint $table) {
             $table->id();
-            
+            $table->foreignId('template_id')->constrained('templates')->onDelete('cascade');
+            $table->string('nombre');
+            $table->text('descripcion')->nullable();
+            $table->integer('orden')->default(1);
+            $table->boolean('obligatorio')->default(true);
             $table->timestamps();
         });
     }
