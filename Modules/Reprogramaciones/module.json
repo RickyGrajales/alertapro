@@ -1,0 +1,11 @@
+{
+    "name": "Reprogramaciones",
+    "alias": "reprogramaciones",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Reprogramaciones\\Providers\\ReprogramacionesServiceProvider"
+    ],
+    "files": []
+}

@@ -1,5 +1,7 @@
 {
     "Usuarios": true,
     "Organizaciones": true,
-    "Plantillas": true
+    "Plantillas": true,
+    "Eventos": true,
+    "Reprogramaciones": true
 }

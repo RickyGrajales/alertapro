@@ -1,0 +1,30 @@
+{
+    "name": "nwidart/reprogramaciones",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Reprogramaciones\\": "app/",
+            "Modules\\Reprogramaciones\\Database\\Factories\\": "database/factories/",
+            "Modules\\Reprogramaciones\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\Reprogramaciones\\Tests\\": "tests/"
+        }
+    }
+}

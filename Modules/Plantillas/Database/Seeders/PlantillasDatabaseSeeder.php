@@ -11,7 +11,6 @@ class PlantillasDatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // $this->call([]);
             $this->call(PlantillasSeeder::class);
 
     }

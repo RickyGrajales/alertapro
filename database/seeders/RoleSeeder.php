@@ -17,7 +17,7 @@ class RoleSeeder extends Seeder
         // 1. Crear roles básicos
         $adminRole = Role::firstOrCreate(['name' => 'Admin']);
         $empleadoRole = Role::firstOrCreate(['name' => 'Empleado']);
-        $supervisorRole = Role::firstOrCreate(['name' => 'Supervisor']);
+        
 
         // 2. Crear permisos básicos
         $permissions = [
@@ -38,7 +38,7 @@ class RoleSeeder extends Seeder
         // 3. Asignar permisos a roles
         $adminRole->givePermissionTo(Permission::all());
         $empleadoRole->givePermissionTo(['eventos.view', 'eventos.create']);
-        $supervisorRole->givePermissionTo(['eventos.view', 'eventos.edit']);
+       
 
         // 4. Asignar un rol al primer usuario
         $user = User::first();
