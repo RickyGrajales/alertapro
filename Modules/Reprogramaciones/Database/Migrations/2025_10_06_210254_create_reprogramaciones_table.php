@@ -9,7 +9,7 @@ return new class extends Migration {
         Schema::create('reprogramaciones', function (Blueprint $table) {
             $table->id();
             $table->foreignId('evento_id')->constrained('eventos')->onDelete('cascade');
-            $table->foreignId('usuario_id')->constrained('usuarios')->onDelete('cascade');
+            $table->foreignId('usuario_id')->nullable()->constrained('usuarios')->nullOnDelete();
             $table->date('fecha_anterior');
             $table->date('nueva_fecha');
             $table->text('motivo');

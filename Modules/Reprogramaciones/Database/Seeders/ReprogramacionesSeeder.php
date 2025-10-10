@@ -3,16 +3,16 @@
 namespace Modules\Reprogramaciones\Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Modules\Eventos\Models\Evento;
+use Modules\Eventos\Models\Event;
 use Modules\Usuarios\Models\Usuario;
 use Modules\Reprogramaciones\Models\Reprogramacion;
 use Carbon\Carbon;
 
-class ReprogramacionSeeder extends Seeder
+class ReprogramacionesSeeder extends Seeder
 {
     public function run(): void
     {
-        $evento = Evento::first();
+        $evento = Event::first();
         $usuario = Usuario::first();
 
         if (!$evento || !$usuario) {
@@ -22,10 +22,11 @@ class ReprogramacionSeeder extends Seeder
 
         Reprogramacion::create([
             'evento_id' => $evento->id,
+            'usuario_id' => $usuario->id,
             'fecha_anterior' => Carbon::now()->subDays(10),
             'nueva_fecha' => Carbon::now()->addDays(5),
             'motivo' => 'Reunión del equipo retrasada por capacitación interna.',
-            'usuario_id' => $usuario->id,
+            
         ]);
 
         Reprogramacion::create([

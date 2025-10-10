@@ -28,16 +28,16 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($plantillas as $p)
+            @foreach($plantillas as $plantilla)
             <tr class="border-b hover:bg-gray-50">
-                <td class="p-3">{{ $p->nombre }}</td>
-                <td class="p-3 capitalize">{{ $p->recurrencia }}</td>
-                <td class="p-3">{{ $p->activo ? '✔️ Sí' : '❌ No' }}</td>
-                <td class="p-3">{{ $p->items->count() }}</td>
+                <td class="p-3">{{ $plantilla->nombre }}</td>
+                <td class="p-3 capitalize">{{ $plantilla->recurrencia }}</td>
+                <td class="p-3">{{ $plantilla->activo ? '✔️ Sí' : '❌ No' }}</td>
+                <td class="p-3">{{ $plantilla->items->count() }}</td>
                 <td class="p-3 flex gap-3">
-                    <a href="{{ route('plantillas.show',$p) }}" class="text-gray-600 hover:text-black">👁️ Ver</a>
-                    <a href="{{ route('plantillas.edit',$p) }}" class="text-blue-600 hover:underline">✏️ Editar</a>
-                    <form method="POST" action="{{ route('plantillas.destroy',$p) }}" 
+                    <a href="{{ route('plantillas.show', $plantilla) }}" class="text-gray-600 hover:text-black">👁️ Ver</a>
+                    <a href="{{ route('plantillas.edit', $plantilla) }}" class="text-blue-600 hover:underline">✏️ Editar</a>
+                    <form method="POST" action="{{ route('plantillas.destroy', $plantilla) }}" 
                           onsubmit="return confirm('¿Eliminar esta plantilla?')" class="inline">
                         @csrf @method('DELETE')
                         <button class="text-red-600 hover:underline">🗑️ Eliminar</button>

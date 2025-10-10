@@ -18,4 +18,16 @@ class Organizacion extends Model
     {
         return $this->hasMany(\Modules\Usuarios\Models\Usuario::class, 'organizacion_id');
     }
+
+    public function templates()
+{
+    return $this->belongsToMany(
+        \Modules\Plantillas\Models\Template::class,
+        'organizacion_plantilla',
+        'organizacion_id',
+        'plantilla_id'
+    )->withTimestamps();
+}
+
+
 }

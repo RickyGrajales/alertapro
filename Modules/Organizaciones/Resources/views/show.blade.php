@@ -1,104 +1,89 @@
-<x-app-layout>
-    <div class="max-w-4xl mx-auto py-6">
-        <div class="bg-white shadow rounded-lg p-6">
-            <h1 class="text-2xl font-bold text-blue-600 mb-6">
-                Detalles de la Organización
-            </h1>
+@extends('layouts.app')
 
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <strong class="text-gray-700">Nombre:</strong>
-                    <p>{{ $organizacion->nombre }}</p>
-                </div>
+@section('title', 'Detalle de Organización')
 
-                <div>
-                    <strong class="text-gray-700">NIT:</strong>
-                    <p>{{ $organizacion->nit }}</p>
-                </div>
+@section('content')
+<div class="max-w-5xl mx-auto bg-white shadow-md rounded-lg p-6 mt-6">
 
-                <div>
-                    <strong class="text-gray-700">Tipo:</strong>
-                    <p>{{ $organizacion->tipo ?? 'N/A' }}</p>
-                </div>
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">
+        🏢 Detalle de la organización
+    </h1>
 
-                <div>
-                    <strong class="text-gray-700">Representante:</strong>
-                    <p>{{ $organizacion->representante ?? 'N/A' }}</p>
-                </div>
-
-                <div>
-                    <strong class="text-gray-700">Email:</strong>
-                    <p>{{ $organizacion->email ?? 'N/A' }}</p>
-                </div>
-
-                <div>
-                    <strong class="text-gray-700">Teléfono:</strong>
-                    <p>{{ $organizacion->telefono ?? 'N/A' }}</p>
-                </div>
-
-                <div>
-                    <strong class="text-gray-700">Dirección:</strong>
-                    <p>{{ $organizacion->direccion ?? 'N/A' }}</p>
-                </div>
-
-                <div>
-                    <strong class="text-gray-700">Ciudad:</strong>
-                    <p>{{ $organizacion->ciudad ?? 'N/A' }}</p>
-                </div>
-
-                <div>
-                    <strong class="text-gray-700">Departamento:</strong>
-                    <p>{{ $organizacion->departamento ?? 'N/A' }}</p>
-                </div>
-
-                <div>
-                    <strong class="text-gray-700">Página Web:</strong>
-                    <p>
-                        @if($organizacion->pagina_web)
-                            <a href="{{ $organizacion->pagina_web }}" target="_blank" class="text-blue-600 hover:underline">
-                                {{ $organizacion->pagina_web }}
-                            </a>
-                        @else
-                            N/A
-                        @endif
-                    </p>
-                </div>
-
-                <div>
-                    <strong class="text-gray-700">Estado:</strong>
-                    <p>{{ $organizacion->activo ? 'Activo' : 'Inactivo' }}</p>
-                </div>
-
-                <div class="col-span-2">
-                    <strong class="text-gray-700">Descripción:</strong>
-                    <p>{{ $organizacion->descripcion ?? 'N/A' }}</p>
-                </div>
-
-                <div class="col-span-2">
-                    <strong class="text-gray-700">Logo:</strong><br>
-                    @if($organizacion->logo)
-                        <img src="{{ asset('storage/' . $organizacion->logo) }}" alt="Logo" class="h-24 mt-2">
-                    @else
-                        <p>No hay logo</p>
-                    @endif
-                </div>
-            </div>
-
-            <div class="mt-6 flex space-x-3">
-                <a href="{{ route('organizaciones.index') }}" class="bg-gray-600 text-white px-4 py-2 rounded">
-                    ⬅ Volver
-                </a>
-                <a href="{{ route('organizaciones.edit', $organizacion) }}" class="bg-yellow-500 text-white px-4 py-2 rounded">
-                    ✏ Editar
-                </a>
-                <form action="{{ route('organizaciones.destroy', $organizacion) }}" method="POST" onsubmit="return confirm('¿Seguro que deseas eliminar esta organización?')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded">
-                        🗑 Eliminar
-                    </button>
-                </form>
-            </div>
+    {{-- Mensaje de éxito --}}
+    @if(session('success'))
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+            {{ session('success') }}
         </div>
+    @endif
+
+    {{-- Información general --}}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div>
+            <p class="text-sm text-gray-500">Nombre</p>
+            <p class="text-lg font-semibold text-gray-900">{{ $organizacion->nombre }}</p>
+        </div>
+
+        <div>
+            <p class="text-sm text-gray-500">NIT</p>
+            <p class="text-lg font-semibold text-gray-900">{{ $organizacion->nit }}</p>
+        </div>
+
+        <div>
+            <p class="text-sm text-gray-500">Correo electrónico</p>
+            <p class="text-lg font-semibold text-gray-900">{{ $organizacion->email ?? '—' }}</p>
+        </div>
+
+        <div>
+            <p class="text-sm text-gray-500">Fecha de creación</p>
+            <p class="text-lg font-semibold text-gray-900">
+                {{ $organizacion->created_at ? $organizacion->created_at->format('d/m/Y') : '—' }}
+            </p>
+        </div>
+
+        @if($organizacion->logo)
+            <div class="col-span-2">
+                <p class="text-sm text-gray-500 mb-2">Logo</p>
+                <img src="{{ asset('storage/' . $organizacion->logo) }}" 
+                     alt="Logo de {{ $organizacion->nombre }}"
+                     class="h-32 object-contain border rounded-md shadow-sm">
+            </div>
+        @endif
     </div>
-</x-app-layout>
+
+    {{-- Plantillas asociadas --}}
+    <div class="border-t pt-6 mt-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">
+            📋 Plantillas asociadas
+        </h2>
+
+        @if($organizacion->templates->count() > 0)
+            <div class="space-y-3">
+                @foreach($organizacion->templates as $template)
+                    <div class="p-4 border rounded-md hover:bg-gray-50 transition">
+                        <p class="font-semibold text-blue-700">
+                            {{ $template->nombre }}
+                        </p>
+                        <p class="text-sm text-gray-600">
+                            {{ $template->descripcion ?? 'Sin descripción' }}
+                        </p>
+                    </div>
+                @endforeach
+            </div>
+        @else
+            <p class="text-gray-600 italic">Esta organización aún no tiene plantillas asignadas.</p>
+        @endif
+    </div>
+
+    {{-- Botones de acción --}}
+    <div class="flex justify-end space-x-3 pt-6 mt-6 border-t">
+        <a href="{{ route('organizaciones.index') }}" class="bg-gray-600 text-white px-5 py-2 rounded hover:bg-gray-700 transition">
+            ⬅️ Volver al listado
+        </a>
+        @role('Admin')
+            <a href="{{ route('organizaciones.edit', $organizacion->id) }}" class="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700 transition">
+                ✏️ Editar
+            </a>
+        @endrole
+    </div>
+</div>
+@endsection

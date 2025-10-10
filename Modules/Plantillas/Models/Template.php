@@ -38,4 +38,16 @@ class Template extends Model
             $template->rules()->delete();
         });
     }
+
+
+    public function organizaciones()
+{
+    return $this->belongsToMany(
+        \Modules\Organizaciones\Models\Organizacion::class,
+        'organizacion_plantilla',
+        'plantilla_id',
+        'organizacion_id'
+    )->withTimestamps();
+}
+
 }

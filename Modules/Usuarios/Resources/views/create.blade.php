@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="max-w-2xl mx-auto py-6">
         <div class="bg-white shadow rounded-lg p-6">
-            <h1 class="text-2xl font-bold text-black-600 mb-6">Crear Usuario</h1>
+            <h1 class="text-2xl font-bold text-white-600 mb-6">Crear Usuario</h1>
 
             <form action="{{ route('usuarios.store') }}" method="POST" class="space-y-4">
                 @csrf

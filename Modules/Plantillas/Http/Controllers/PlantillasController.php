@@ -113,7 +113,7 @@ class PlantillasController extends Controller
             'activo' => $request->has('activo'),
         ]);
 
-        // 📋 Actualizar ítems → borrar y recrear
+        // Actualizar ítems → borrar y recrear
         $plantilla->items()->delete();
         if ($request->has('items')) {
             foreach ($request->items as $itemData) {
@@ -126,7 +126,7 @@ class PlantillasController extends Controller
             }
         }
 
-        // 🔔 Actualizar reglas → borrar y recrear
+        // Actualizar reglas → borrar y recrear
         $plantilla->rules()->delete();
         if ($request->has('rules')) {
             foreach ($request->rules as $ruleData) {

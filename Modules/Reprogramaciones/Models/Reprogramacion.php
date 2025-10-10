@@ -4,7 +4,7 @@ namespace Modules\Reprogramaciones\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Modules\Eventos\Models\Evento;
+use Modules\Eventos\Models\Event;
 use Modules\Usuarios\Models\Usuario;
 
 class Reprogramacion extends Model
@@ -23,10 +23,10 @@ class Reprogramacion extends Model
     ];
 
     public function evento() {
-        return $this->belongsTo(Evento::class);
+        return $this->belongsTo(Event::class, 'evento_id');
     }
 
     public function usuario() {
-        return $this->belongsTo(Usuario::class);
+        return $this->belongsTo(Usuario::class, 'usuario_id');
     }
 }
