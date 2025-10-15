@@ -1,6 +1,5 @@
 {{-- Modules/Organizaciones/Resources/views/partials/form-fields.blade.php --}}
 @php
-    // Si la vista es "create" no existirá $organizacion
     $o = $organizacion ?? null;
 @endphp
 
@@ -56,8 +55,11 @@
         <div>
             <label class="block text-gray-700 font-semibold">Página web</label>
             <input name="pagina_web"
+                   id="pagina_web"
+                   placeholder="Ejemplo: www.atrapasuenos.org"
                    class="w-full border-gray-300 rounded p-2"
                    value="{{ old('pagina_web', $o->pagina_web ?? '') }}">
+            <p class="text-sm text-gray-500">Si no tiene “http://” o “https://”, se agregará automáticamente.</p>
         </div>
     </div>
 
@@ -118,13 +120,24 @@
             @foreach($templates as $template)
                 @php
                     $selectedTemplates = old('templates', isset($o) && $o->templates ? $o->templates->pluck('id')->toArray() : []);
-            @endphp
-            <option value="{{ $template->id }}" {{ in_array($template->id, $selectedTemplates) ? 'selected' : '' }}>
+                @endphp
+                <option value="{{ $template->id }}" {{ in_array($template->id, $selectedTemplates) ? 'selected' : '' }}>
                     {{ $template->nombre }}
-            </option>
-
+                </option>
             @endforeach
         </select>
         <p class="text-sm text-gray-500">Selecciona una o varias plantillas asociadas a esta organización.</p>
     </div>
 </div>
+
+{{-- 🔧 Script para agregar automáticamente "https://" si falta --}}
+@push('scripts')
+<script>
+    document.querySelector('form').addEventListener('submit', function () {
+        const input = document.getElementById('pagina_web');
+        if (input.value && !input.value.startsWith('http://') && !input.value.startsWith('https://')) {
+            input.value = 'https://' + input.value.trim();
+        }
+    });
+</script>
+@endpush

@@ -34,6 +34,11 @@
     30 => 'Nwidart\\Modules\\LaravelModulesServiceProvider',
     31 => 'Spatie\\Permission\\PermissionServiceProvider',
     32 => 'App\\Providers\\AppServiceProvider',
+    33 => 'Modules\\Usuarios\\Providers\\UsuariosServiceProvider',
+    34 => 'Modules\\Organizaciones\\Providers\\OrganizacionesServiceProvider',
+    35 => 'Modules\\Plantillas\\Providers\\PlantillasServiceProvider',
+    36 => 'Modules\\Eventos\\Providers\\EventosServiceProvider',
+    37 => 'Modules\\Reprogramaciones\\Providers\\ReprogramacionesServiceProvider',
   ),
   'eager' => 
   array (
@@ -54,6 +59,11 @@
     14 => 'Nwidart\\Modules\\LaravelModulesServiceProvider',
     15 => 'Spatie\\Permission\\PermissionServiceProvider',
     16 => 'App\\Providers\\AppServiceProvider',
+    17 => 'Modules\\Usuarios\\Providers\\UsuariosServiceProvider',
+    18 => 'Modules\\Organizaciones\\Providers\\OrganizacionesServiceProvider',
+    19 => 'Modules\\Plantillas\\Providers\\PlantillasServiceProvider',
+    20 => 'Modules\\Eventos\\Providers\\EventosServiceProvider',
+    21 => 'Modules\\Reprogramaciones\\Providers\\ReprogramacionesServiceProvider',
   ),
   'deferred' => 
   array (
