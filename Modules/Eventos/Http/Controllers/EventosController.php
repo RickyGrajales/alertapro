@@ -7,6 +7,7 @@ use Illuminate\Routing\Controller;
 use Modules\Eventos\Models\Event;
 use Modules\Usuarios\Models\Usuario;
 use Modules\Plantillas\Models\Template;
+use App\Notifications\EventoDelegadoNotification;
 
 class EventosController extends Controller
 {
@@ -83,6 +84,45 @@ class EventosController extends Controller
 
         return redirect()->route('eventos.show', $evento)->with('success', '✏️ Evento actualizado correctamente.');
     }
+
+    //Metodo delegar
+    
+public function delegar(Request $request, $id)
+{
+    $request->validate([
+        'nuevo_responsable_id' => 'required|exists:usuarios,id',
+        'motivo' => 'required|string|max:255',
+    ]);
+
+    $evento = \Modules\Eventos\Models\Event::findOrFail($id);
+    $nuevoResponsable = \Modules\Usuarios\Models\Usuario::findOrFail($request->nuevo_responsable_id);
+    $delegador = auth()->user();
+
+    // Actualiza el responsable
+    $evento->update([
+        'responsable_id' => $nuevoResponsable->id,
+    ]);
+
+    // Envía notificación al nuevo responsable
+    $nuevoResponsable->notify(new \App\Notifications\EventoDelegadoNotification($evento, $delegador));
+
+    // 🔹 Registrar en historial si existe módulo de reprogramaciones
+    if (class_exists(\Modules\Reprogramaciones\Models\Reprogramacion::class)) {
+        \Modules\Reprogramaciones\Models\Reprogramacion::create([
+            'evento_id' => $evento->id,
+            'usuario_id' => $delegador->id,
+            'fecha_anterior' => now(),
+            'nueva_fecha' => $evento->due_date,
+            'motivo' => "Delegación del evento a {$nuevoResponsable->nombre}: {$request->motivo}",
+        ]);
+    }
+
+    // Redirige con mensaje de éxito
+    return redirect()
+        ->route('eventos.index')
+        ->with('success', "El evento fue delegado a {$nuevoResponsable->nombre} correctamente.");
+}
+
 
     // Eliminar
     public function destroy(Event $evento)

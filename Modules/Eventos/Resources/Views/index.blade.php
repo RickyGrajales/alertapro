@@ -48,6 +48,16 @@
                     <td class="p-3 text-center flex gap-3 justify-center">
                         <a href="{{ route('eventos.show', $evento) }}" class="text-gray-600 hover:text-black">👁 Ver</a>
                         <a href="{{ route('eventos.edit', $evento) }}" class="text-blue-600 hover:underline">✏️ Editar</a>
+                        <a href="{{ route('reprogramaciones.create', $evento->id) }}" class="text-purple-600 hover:underline">🔁 Reprogramar</a>
+                        <form action="{{ route('eventos.delegar', $evento->id) }}" method="POST" class="inline">
+                        @csrf
+                        <input type="hidden" name="nuevo_responsable_id" value="2"> <!-- ID de ejemplo -->
+                        <input type="hidden" name="motivo" value="Delegación de tarea">
+                        <button type="submit" class="text-blue-600 hover:underline">
+                            👤 Delegar
+                        </button>
+                    </form>
+
                         <form method="POST" action="{{ route('eventos.destroy', $evento) }}" onsubmit="return confirm('¿Eliminar este evento?')">
                             @csrf @method('DELETE')
                             <button class="text-red-600 hover:underline">🗑 Eliminar</button>

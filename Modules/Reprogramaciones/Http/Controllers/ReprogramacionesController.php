@@ -4,8 +4,9 @@ namespace Modules\Reprogramaciones\Http\Controllers;
 
 use Illuminate\Routing\Controller;
 use Modules\Reprogramaciones\Models\Reprogramacion;
-use Modules\Eventos\Models\Evento;
+use Modules\Eventos\Models\Event;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class ReprogramacionesController extends Controller
@@ -18,35 +19,56 @@ class ReprogramacionesController extends Controller
 
     public function create($evento_id)
     {
-        $evento = Evento::findOrFail($evento_id);
+        $evento = Event::findOrFail($evento_id);
         return view('reprogramaciones::create', compact('evento'));
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'evento_id' => 'required|exists:eventos,id',
-            'motivo' => 'required|string|max:255',
-            'nueva_fecha' => 'required|date|after:today',
-            'evidencia' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
-        ]);
+{
+    $request->validate([
+        'evento_id' => 'required|exists:eventos,id',
+        'motivo' => 'required|string|max:255',
+        'nueva_fecha' => 'required|date|after:today',
+        'evidencia' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+    ]);
 
-        $data = $request->all();
+    DB::beginTransaction();
+    try {
+        $evento = \Modules\Eventos\Models\Event::findOrFail($request->evento_id);
+
+        // Guardar evidencia si existe
+        $evidenciaPath = null;
         if ($request->hasFile('evidencia')) {
-            $data['evidencia'] = $request->file('evidencia')->store('evidencias', 'public');
+            $evidenciaPath = $request->file('evidencia')->store('evidencias', 'public');
         }
 
-        $data['usuario_id'] = auth()->id();
-        $evento = Evento::find($data['evento_id']);
-        $data['fecha_anterior'] = $evento->due_date;
+        // Crear registro de reprogramación
+        Reprogramacion::create([
+            'evento_id' => $evento->id,
+            'usuario_id' => auth()->id(),
+            'motivo' => $request->motivo,
+            'fecha_anterior' => $evento->due_date,
+            'nueva_fecha' => $request->nueva_fecha,
+            'evidencia' => $evidenciaPath,
+        ]);
 
-        Reprogramacion::create($data);
+        // Actualizar la fecha del evento
+        $evento->due_date = $request->nueva_fecha;
+        $evento->save();
 
-        $evento->update(['due_date' => $data['nueva_fecha']]);
+        DB::commit();
 
-        return redirect()->route('reprogramaciones.index')
-                         ->with('success', '✅ Reprogramación registrada correctamente.');
+        return redirect()
+            ->route('reprogramaciones.index')
+            ->with('success', '✅ Reprogramación registrada y evento actualizado correctamente.');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return back()
+            ->with('error', '⚠️ Error al guardar la reprogramación: ' . $e->getMessage());
     }
+}
+
 
     public function show($id)
     {
@@ -70,13 +92,21 @@ class ReprogramacionesController extends Controller
         ]);
 
         $reprogramacion->update($request->only(['motivo', 'nueva_fecha']));
-        return redirect()->route('reprogramaciones.index')->with('success', '📝 Reprogramación actualizada.');
+        return redirect()->route('reprogramaciones.index')
+            ->with('success', '📝 Reprogramación actualizada correctamente.');
     }
 
     public function destroy($id)
     {
         $reprogramacion = Reprogramacion::findOrFail($id);
+
+        // Eliminar evidencia si existe
+        if ($reprogramacion->evidencia && Storage::disk('public')->exists($reprogramacion->evidencia)) {
+            Storage::disk('public')->delete($reprogramacion->evidencia);
+        }
+
         $reprogramacion->delete();
-        return redirect()->route('reprogramaciones.index')->with('success', '🗑️ Reprogramación eliminada.');
+        return redirect()->route('reprogramaciones.index')
+            ->with('success', '🗑️ Reprogramación eliminada correctamente.');
     }
 }

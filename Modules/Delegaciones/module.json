@@ -1,0 +1,11 @@
+{
+    "name": "Delegaciones",
+    "alias": "delegaciones",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Delegaciones\\Providers\\DelegacionesServiceProvider"
+    ],
+    "files": []
+}

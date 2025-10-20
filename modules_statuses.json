@@ -3,5 +3,6 @@
     "Organizaciones": true,
     "Plantillas": true,
     "Eventos": true,
-    "Reprogramaciones": true
+    "Reprogramaciones": true,
+    "Delegaciones": true
 }
