@@ -36,8 +36,9 @@
         <div class="mb-4">
             <label class="block font-semibold">Recurrencia</label>
             <select name="recurrencia" class="w-full border p-2 rounded">
-                <option value="mensual">Mensual</option>
-                <option value="trimestral">Trimestral</option>
+                <option value="mensual">Diaria</option>
+                <option value="trimestral">Semanal</option>
+                <option value="anual">Mensual</option>
                 <option value="anual">Anual</option>
             </select>
         </div>

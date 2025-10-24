@@ -10,7 +10,7 @@
     @if ($errors->any())
         <div class="bg-red-100 border border-red-400 text-red-700 p-4 rounded mb-4">
             <strong>Se encontraron errores:</strong>
-            <ul class="mt-2 list-disc list-inside">
+            <ul class="mt-2 list-disc list-inside"> 
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach

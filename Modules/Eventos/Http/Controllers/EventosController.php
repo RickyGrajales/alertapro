@@ -9,7 +9,7 @@ use Modules\Eventos\Models\Event;
 use Modules\Usuarios\Models\Usuario;
 use Modules\Plantillas\Models\Template;
 use Modules\Reprogramaciones\Models\Reprogramacion;
-use App\Notifications\EventoDelegadoNotification;
+use Modules\Eventos\Notifications\EventoDelegadoNotification;
 
 
 class EventosController extends Controller
@@ -125,7 +125,7 @@ public function delegar(Request $request, $id)
 
         // Notificación
         $nuevoResponsable = \Modules\Usuarios\Models\Usuario::find($request->nuevo_responsable_id);
-        $nuevoResponsable->notify(new \App\Notifications\EventoDelegadoNotification($evento, auth()->user()));
+        $nuevoResponsable->notify(new EventoDelegadoNotification($evento, auth()->user()));
 
         DB::commit();
 

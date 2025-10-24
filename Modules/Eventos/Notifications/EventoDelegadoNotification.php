@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Notifications;
+namespace Modules\Eventos\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Modules\Eventos\Models\Event;
-
 
 class EventoDelegadoNotification extends Notification implements ShouldQueue
 {
@@ -22,11 +21,31 @@ class EventoDelegadoNotification extends Notification implements ShouldQueue
         $this->delegador = $delegador;
     }
 
+    /**
+     * Canales por los que se envía la notificación.
+     */
     public function via($notifiable)
     {
-        return ['database']; // Solo se guarda en base de datos
+        return ['mail', 'database'];
     }
 
+    /**
+     * Contenido del correo electrónico (Brevo).
+     */
+    public function toMail($notifiable)
+    {
+        return (new MailMessage)
+            ->subject('📌 Nuevo evento delegado: ' . $this->evento->titulo)
+            ->greeting('Hola ' . $notifiable->nombre . ',')
+            ->line("Te informamos que el evento **{$this->evento->titulo}** te ha sido delegado por **{$this->delegador->nombre}**.")
+            ->line('Por favor, revisa los detalles y continúa con la gestión asignada.')
+            ->action('Ver evento', url('/eventos/' . $this->evento->id))
+            ->line('Gracias por tu compromiso con el proyecto Atrapasueños.');
+    }
+
+    /**
+     * Contenido para la base de datos.
+     */
     public function toDatabase($notifiable)
     {
         return [
@@ -38,9 +57,9 @@ class EventoDelegadoNotification extends Notification implements ShouldQueue
     }
 
     /**
-     * Respaldo opcional (si usas API o broadcasting más adelante).
+     * Opcional (para API o broadcast futuro)
      */
-    public function toArray($notifiable): array
+    public function toArray($notifiable)
     {
         return $this->toDatabase($notifiable);
     }
