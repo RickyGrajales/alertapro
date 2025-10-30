@@ -11,48 +11,25 @@ use Carbon\Carbon;
 
 class NotificarEventosCommand extends Command
 {
-    /**
-     * Nombre del comando.
-     */
     protected $signature = 'alertapro:notificar';
+    protected $description = 'Envía notificaciones de recordatorio para eventos próximos a vencer';
 
-    /**
-     * Descripción del comando.
-     */
-    protected $description = 'Envía notificaciones de eventos próximos a vencer o reprogramados.';
-
-    /**
-     * Ejecución del comando.
-     */
     public function handle()
     {
-        Log::info('🕐 Ejecutando comando alertapro:notificar...');
-
-        $hoy = Carbon::today();
-        $manana = Carbon::tomorrow();
-
-        // Buscar eventos cuya fecha límite sea HOY o MAÑANA
-        $eventos = Event::whereBetween('due_date', [$hoy, $manana])
-                        ->with('responsable')
-                        ->get();
+        $eventos = Event::whereBetween('due_date', [Carbon::now(), Carbon::now()->addDay()])->get();
 
         if ($eventos->isEmpty()) {
             $this->info('No hay eventos próximos a vencer.');
-            Log::info('✅ No hay eventos próximos a notificar.');
-            return Command::SUCCESS;
+            return;
         }
 
         foreach ($eventos as $evento) {
-            $responsable = $evento->responsable;
-            if ($responsable) {
-                Notification::send($responsable, new EventoRecordatorioNotification($evento));
-                Log::info("📩 Notificación enviada a {$responsable->nombre} por el evento {$evento->titulo}");
+            if ($evento->responsable) {
+                Notification::send($evento->responsable, new EventoRecordatorioNotification($evento));
+                Log::info("📩 Recordatorio enviado a {$evento->responsable->nombre}");
             }
         }
 
-        $this->info('✅ Notificaciones enviadas correctamente.');
-        Log::info('✅ Proceso completado correctamente.');
-
-        return Command::SUCCESS;
+        $this->info('✅ Recordatorios enviados correctamente.');
     }
 }

@@ -9,6 +9,7 @@ use Modules\Eventos\Models\Event;
 use Modules\Usuarios\Models\Usuario;
 use Modules\Plantillas\Models\Template;
 use Modules\Reprogramaciones\Models\Reprogramacion;
+use Illuminate\Support\Facades\Notification;
 use Modules\Eventos\Notifications\EventoDelegadoNotification;
 
 
@@ -102,41 +103,36 @@ class EventosController extends Controller
     
 public function delegar(Request $request, $id)
 {
-    $request->validate([
-        'nuevo_responsable_id' => 'required|exists:usuarios,id',
-        'motivo' => 'required|string|max:255',
-    ]);
-
-    $evento = \Modules\Eventos\Models\Event::findOrFail($id);
-
-    DB::beginTransaction();
     try {
-        $responsableAnterior = $evento->responsable;
-        $evento->update(['responsable_id' => $request->nuevo_responsable_id]);
+        DB::beginTransaction();
 
-        // Registrar historial de delegación
+        $evento = Event::findOrFail($id);
+        $nuevoResponsable = \Modules\Usuarios\Models\Usuario::find($request->nuevo_responsable_id);
+
+        // Actualiza el responsable
+        $evento->responsable_id = $nuevoResponsable->id;
+        $evento->save();
+
+        // Guarda reprogramación / auditoría
         \Modules\Reprogramaciones\Models\Reprogramacion::create([
             'evento_id' => $evento->id,
             'usuario_id' => auth()->id(),
-            'motivo' => 'Delegación: ' . $request->motivo,
+            'motivo' => "Delegación: {$request->motivo}",
             'fecha_anterior' => now(),
             'nueva_fecha' => $evento->due_date,
         ]);
 
-        // Notificación
-        $nuevoResponsable = \Modules\Usuarios\Models\Usuario::find($request->nuevo_responsable_id);
+        // Enviar notificación real por correo
         $nuevoResponsable->notify(new EventoDelegadoNotification($evento, auth()->user()));
 
         DB::commit();
-
-        return redirect()->route('eventos.index')
-                         ->with('success', "El evento fue delegado correctamente a {$nuevoResponsable->nombre}.");
+        return redirect()->route('eventos.index')->with('success', "El evento fue delegado correctamente a {$nuevoResponsable->nombre}.");
     } catch (\Exception $e) {
         DB::rollBack();
+        \Log::error('Error al delegar evento: '.$e->getMessage());
         return back()->withErrors(['error' => 'Ocurrió un error al delegar el evento.']);
     }
 }
-
 
 
     // Eliminar

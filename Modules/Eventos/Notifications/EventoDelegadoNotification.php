@@ -26,7 +26,7 @@ class EventoDelegadoNotification extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        return ['mail', 'database'];
+        return ['mail', 'database', 'whatsapp'];
     }
 
     /**
@@ -55,6 +55,16 @@ class EventoDelegadoNotification extends Notification implements ShouldQueue
             'fecha' => now()->format('d/m/Y H:i'),
         ];
     }
+
+
+    public function toWhatsapp($notifiable)
+{
+    $mensaje = "Hola {$notifiable->nombre}, se te ha delegado el evento '{$this->evento->titulo}' para el día {$this->evento->due_date->format('d/m/Y')}.";
+
+    app(\Modules\Eventos\Notifications\Services\WhatsAppService::class)
+        ->send($notifiable->telefono, $mensaje);
+}
+
 
     /**
      * Opcional (para API o broadcast futuro)

@@ -2,21 +2,26 @@
 
 namespace Modules\Eventos\Notifications\Canales;
 
-use Modules\Eventos\Notifications\Services\WhatsAppService;
+use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Log;
+use Modules\Eventos\Services\WhatsAppService;
 
 class WhatsAppChannel
 {
-    public function send($notifiable, $notification)
+    public function send($notifiable, Notification $notification)
     {
         if (!method_exists($notification, 'toWhatsApp')) {
             return;
         }
 
         $message = $notification->toWhatsApp($notifiable);
-        $phone = $notifiable->telefono ?? null;
 
-        if ($phone) {
-            (new WhatsAppService())->send($phone, $message);
+        try {
+            $service = new WhatsAppService();
+            $service->sendMessage($notifiable->telefono, $message);
+            Log::info("📲 WhatsApp enviado a {$notifiable->telefono}");
+        } catch (\Exception $e) {
+            Log::error("❌ Error enviando WhatsApp: " . $e->getMessage());
         }
     }
 }
