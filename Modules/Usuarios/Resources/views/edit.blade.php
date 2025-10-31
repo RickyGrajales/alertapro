@@ -19,6 +19,14 @@
                            class="w-full border-gray-300 rounded-lg shadow-sm">
                 </div>
 
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="telefono">Teléfono</label>
+                    <input type="text" name="telefono" id="telefono" value="{{ old('telefono', $usuario->telefono ?? '') }}"
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    placeholder="+573001234567">
+                </div>
+
+
                 <div>
                     <label class="block text-gray-700">Rol</label>
                     <select name="rol" class="w-full border-gray-300 rounded-lg shadow-sm">

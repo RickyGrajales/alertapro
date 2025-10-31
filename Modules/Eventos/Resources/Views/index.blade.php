@@ -9,12 +9,19 @@
         </a>
     </div>
 
+    {{-- Mensajes de sesión --}}
     @if(session('success'))
         <div class="mb-4 bg-green-100 text-green-800 px-4 py-3 rounded">
             {{ session('success') }}
         </div>
     @endif
+    @if(session('error'))
+        <div class="mb-4 bg-red-100 text-red-800 px-4 py-3 rounded">
+            {{ session('error') }}
+        </div>
+    @endif
 
+    {{-- Tabla de eventos --}}
     @if($eventos->count())
     <div class="bg-white shadow rounded overflow-x-auto">
         <table class="min-w-full border-collapse">
@@ -45,14 +52,23 @@
                             {{ $evento->estado }}
                         </span>
                     </td>
-                    <td class="p-3 text-center flex gap-3 justify-center">
+                    <td class="p-3 flex flex-wrap justify-center gap-2 text-center">
                         <a href="{{ route('eventos.show', $evento) }}" class="text-gray-600 hover:text-black">👁 Ver</a>
                         <a href="{{ route('eventos.edit', $evento) }}" class="text-blue-600 hover:underline">✏️ Editar</a>
                         <a href="{{ route('reprogramaciones.create', $evento->id) }}" class="text-purple-600 hover:underline">🔁 Reprogramar</a>
                         <a href="{{ route('delegaciones.create', $evento->id) }}" class="text-blue-600 hover:underline">👤 Delegar</a>
 
-                        <form method="POST" action="{{ route('eventos.destroy', $evento) }}" onsubmit="return confirm('¿Eliminar este evento?')">
-                            @csrf @method('DELETE')
+                        <!-- Botón de notificación manual -->
+                        <a href="{{ route('notificaciones.enviar', $evento->id) }}"
+                           class="inline-flex items-center px-2 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 transition"
+                           onclick="return confirm('¿Enviar notificación manual a {{ $evento->responsable->nombre ?? 'el responsable' }}?')">
+                            <i class="fas fa-paper-plane mr-1"></i> Notificar
+                        </a>
+
+                        <form method="POST" action="{{ route('eventos.destroy', $evento) }}" 
+                              onsubmit="return confirm('¿Eliminar este evento?')">
+                            @csrf 
+                            @method('DELETE')
                             <button class="text-red-600 hover:underline">🗑 Eliminar</button>
                         </form>
                     </td>
@@ -68,4 +84,3 @@
     @endif
 </div>
 @endsection
-

@@ -46,6 +46,7 @@
                             <th class="px-4 py-2">ID</th>
                             <th class="px-4 py-2">Nombre</th>
                             <th class="px-4 py-2">Email</th>
+                             <th class="px-4 py-2">Telefono</th>
                             <th class="px-4 py-2">Rol</th>
                             <th class="px-4 py-2">Activo</th>
                             <th class="px-4 py-2">Organización</th>
@@ -60,6 +61,7 @@
                                 <td class="px-4 py-2">{{ $usuario->id }}</td>
                                 <td class="px-4 py-2">{{ $usuario->nombre }}</td>
                                 <td class="px-4 py-2">{{ $usuario->email }}</td>
+                                <td class="px-4 py-2">{{ $usuario->Telefono }}</td>
                                 <td class="px-4 py-2">{{ $usuario->rol }}</td>
                                 <td class="px-4 py-2">
                                     <span class="px-2 py-1 rounded text-white {{ $usuario->activo ? 'bg-green-500' : 'bg-red-500' }}">

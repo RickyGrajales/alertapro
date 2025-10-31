@@ -15,12 +15,10 @@
 
         <!-- Sidebar -->
         <aside class="w-64 bg-blue-900 text-white flex flex-col shadow-xl fixed h-full">
-            <!-- Logo -->
             <div class="p-6 text-2xl font-bold border-b border-blue-800 text-center bg-blue-950">
                 {{ config('app.name', 'AlertaPro') }}
             </div>
 
-            <!-- Menú lateral -->
             <nav class="flex-1 p-4 space-y-1">
                 <a href="{{ route('dashboard') }}" class="flex items-center px-4 py-2 rounded hover:bg-blue-700 transition">
                     <i class="fas fa-chart-line mr-2"></i> Dashboard
@@ -47,9 +45,12 @@
                 <a href="{{ route('reprogramaciones.index') }}" class="flex items-center px-4 py-2 rounded hover:bg-blue-700 transition">
                     <i class="fas fa-rotate-right mr-2"></i> Reprogramaciones
                 </a>
+
+                <a href="{{ route('notificaciones.index') }}" class="flex items-center px-4 py-2 rounded hover:bg-blue-700 transition">
+                    <i class="fas fa-envelope-open-text mr-2"></i> Notificaciones
+                </a>
             </nav>
 
-            <!-- Cerrar sesión -->
             <form method="POST" action="{{ route('logout') }}" class="p-4 border-t border-blue-800 bg-blue-950">
                 @csrf
                 <button type="submit" class="w-full bg-red-600 text-white py-2 rounded hover:bg-red-700 transition">
@@ -58,10 +59,10 @@
             </form>
         </aside>
 
-        <!-- Contenedor principal -->
+        <!-- Contenido principal -->
         <div class="flex-1 flex flex-col ml-64 bg-gray-50 min-h-screen">
 
-            <!-- Header superior -->
+            <!-- Header -->
             <header class="flex justify-between items-center bg-white shadow px-6 py-4">
                 <!-- Notificaciones -->
                 @php
@@ -91,14 +92,14 @@
                         @endforelse
 
                         <div class="p-3 text-center">
-                            <a href="{{ route('notificaciones.leer-todas') }}" class="text-blue-600 text-sm hover:underline">
-                                Marcar todas como leídas
+                            <a href="{{ route('notificaciones.marcar-todas') }}" 
+                               class="text-blue-600 text-sm hover:underline block py-2">
+                               ✅ Marcar todas como leídas
                             </a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Usuario -->
                 <div class="flex items-center space-x-4">
                     <div class="text-right">
                         <p class="font-semibold text-gray-800">{{ auth()->user()->nombre }}</p>
@@ -110,7 +111,7 @@
                 </div>
             </header>
 
-            <!-- Contenido -->
+            <!-- Contenido dinámico -->
             <main class="flex-1 p-6 overflow-y-auto">
                 {{ $slot ?? '' }}
                 @yield('content')
@@ -118,7 +119,7 @@
         </div>
     </div>
 
-    <!-- Script menú notificaciones -->
+    <!-- JS -->
     <script>
         document.getElementById('notifButton').addEventListener('click', () => {
             document.getElementById('notifMenu').classList.toggle('hidden');
