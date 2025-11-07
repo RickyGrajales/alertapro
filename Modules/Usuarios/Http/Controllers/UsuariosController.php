@@ -42,25 +42,27 @@ class UsuariosController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'nombre' => 'required|string|max:100',
-            'email' => 'required|email|unique:usuarios,email',
-            'password' => 'required|min:6',
-            'rol' => 'required|in:Admin,Empleado',
-        ]);
+{
+    $request->validate([
+        'nombre' => 'required|string|max:100',
+        'email' => 'required|email|unique:usuarios,email',
+        'password' => 'required|min:6',
+        'rol' => 'required|in:Admin,Empleado',
+        'telefono' => 'nullable|string|max:20',
+    ]);
 
-        Usuario::create([
-            'nombre' => $request->nombre,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'rol' => $request->rol,
-            'activo' => $request->activo ?? true,
-            'organizacion_id' => $request->organizacion_id,
-        ]);
+    Usuario::create([
+        'nombre' => $request->nombre,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+        'rol' => $request->rol,
+        'telefono' => $request->telefono, // ✅ Agregado
+        'activo' => $request->activo ?? true,
+        'organizacion_id' => $request->organizacion_id,
+    ]);
 
-        return redirect()->route('usuarios.index')->with('success', 'Usuario creado correctamente');
-    }
+    return redirect()->route('usuarios.index')->with('success', 'Usuario creado correctamente');
+}
 
     public function edit($id)
     {
@@ -76,29 +78,31 @@ class UsuariosController extends Controller
     }
 
     public function update(Request $request, $id)
-    {
-        $usuario = Usuario::findOrFail($id);
+{
+    $usuario = Usuario::findOrFail($id);
 
-        $request->validate([
-            'nombre' => 'required|string|max:100',
-            'email' => 'required|email|unique:usuarios,email,' . $usuario->id,
-            'rol' => 'required|in:Admin,Empleado',
-        ]);
+    $request->validate([
+        'nombre' => 'required|string|max:100',
+        'email' => 'required|email|unique:usuarios,email,' . $usuario->id,
+        'rol' => 'required|in:Admin,Empleado',
+        'telefono' => 'nullable|string|max:20',
+    ]);
 
-        $usuario->nombre = $request->nombre;
-        $usuario->email = $request->email;
-        $usuario->rol = $request->rol;
-        $usuario->activo = $request->activo ?? true;
-        $usuario->organizacion_id = $request->organizacion_id;
+    $usuario->nombre = $request->nombre;
+    $usuario->email = $request->email;
+    $usuario->rol = $request->rol;
+    $usuario->telefono = $request->telefono; // ✅ Agregado
+    $usuario->activo = $request->activo ?? true;
+    $usuario->organizacion_id = $request->organizacion_id;
 
-        if ($request->filled('password')) {
-            $usuario->password = Hash::make($request->password);
-        }
-
-        $usuario->save();
-
-        return redirect()->route('usuarios.index')->with('success', 'Usuario actualizado correctamente');
+    if ($request->filled('password')) {
+        $usuario->password = Hash::make($request->password);
     }
+
+    $usuario->save();
+
+    return redirect()->route('usuarios.index')->with('success', 'Usuario actualizado correctamente');
+}
 
     public function destroy($id)
     {

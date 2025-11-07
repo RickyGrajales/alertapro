@@ -1,67 +1,57 @@
-<x-guest-layout>
-    <!-- Logo -->
-    <div class="text-center mb-4">
-        <img src="{{ asset('images/logoAlertaPro1.png') }}" 
-             alt="Logo Fundación Asodisvalle" 
-             style="width: 150px; height: 150px; margin: 0 auto; border-radius: 12px; object-fit: cover;">
-    </div>
-
-    <!-- Encabezado -->
-    <div class="text-center mb-6">
-        <h1 class="text-2xl font-bold mb-1" style="color: #2563eb;">ALERTAPRO</h1>
-        <p class="text-gray-600 text-sm">Sistema de Gestión de Notificaciones</p>
-    </div>
-
-    <!-- Formulario -->
-    <form method="POST" action="{{ route('login') }}" class="space-y-4">
-        @csrf
-        
-        <!-- Campo Usuario -->
-        <div>
-            <label for="email" class="block text-gray-700 text-sm font-medium mb-2">Usuario</label>
-            <input id="email" 
-                   type="email" 
-                   name="email" 
-                   value="{{ old('email') }}" 
-                   placeholder="Ingrese su usuario"
-                   required 
-                   autofocus
-                   style="width: 100%; padding: 12px 16px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px;"
-                   class="focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"/>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión | AlertaPro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen flex items-center justify-center">
+    <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-8 space-y-6">
+        <!-- Logo -->
+        <div class="text-center">
+            <h1 class="text-3xl font-bold text-blue-700 mb-2">🔔 AlertaPro</h1>
+            <p class="text-gray-600">Inicia sesión para continuar</p>
         </div>
 
-        <!-- Campo Contraseña -->
-        <div>
-            <label for="password" class="block text-gray-700 text-sm font-medium mb-2">Contraseña</label>
-            <input id="password" 
-                   type="password" 
-                   name="password" 
-                   placeholder="Ingrese su contraseña"
-                   required
-                   style="width: 100%; padding: 12px 16px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px;"
-                   class="focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"/>
-        </div>
+        <!-- Formulario -->
+        <form method="POST" action="{{ route('login') }}" class="space-y-5">
+            @csrf
 
-        <!-- Botón Ingresar -->
-        <div class="pt-2">
-            <button type="submit" 
-                    style="width: 100%; background-color: #2563eb; color: white; padding: 12px; border-radius: 8px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px; border: none; cursor: pointer; transition: background-color 0.2s;"
-                    onmouseover="this.style.backgroundColor='#1d4ed8'"
-                    onmouseout="this.style.backgroundColor='#2563eb'">
-                <svg xmlns="http://www.w3.org/2000/svg" style="width: 20px; height: 20px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                </svg>
-                Ingresar
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico</label>
+                <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
+                    class="w-full border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+                <input id="password" type="password" name="password" required
+                    class="w-full border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <div class="flex justify-between items-center">
+                <label class="flex items-center text-sm">
+                    <input type="checkbox" name="remember" class="mr-2 rounded text-blue-600 focus:ring-blue-500">
+                    Recordarme
+                </label>
+                <a href="{{ route('password.request') }}" class="text-sm text-blue-600 hover:underline">¿Olvidaste tu contraseña?</a>
+            </div>
+
+            <button type="submit"
+                class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
+                Iniciar Sesión
             </button>
-        </div>
-    </form>
+        </form>
 
-    <!-- Link recuperar contraseña -->
-    @if (Route::has('password.request'))
-        <div class="mt-6 text-center">
-            <a href="{{ route('password.request') }}" style="color: #2563eb; text-decoration: none; font-size: 14px;">
-                ¿Olvidó su contraseña?
-            </a>
-        </div>
-    @endif
-</x-guest-layout>
+        <!-- Registro -->
+        @if (Route::has('register'))
+            <p class="text-center text-sm text-gray-600">
+                ¿No tienes una cuenta?
+                <a href="{{ route('register') }}" class="text-blue-600 hover:underline">Regístrate</a>
+            </p>
+        @endif
+    </div>
+</body>
+</html>

@@ -3,9 +3,12 @@
 namespace Modules\Eventos\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Console\Scheduling\Schedule;
 use Modules\Eventos\Console\Commands\NotificarEventosCommand;
+use Modules\Eventos\Notifications\Canales\WhatsAppChannel;
+use Modules\Eventos\Notifications\Services\WhatsAppService;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -17,9 +20,6 @@ class EventosServiceProvider extends ServiceProvider
     protected string $name = 'Eventos';
     protected string $nameLower = 'eventos';
 
-    /**
-     * Boot del módulo (se ejecuta al inicializar Laravel).
-     */
     public function boot(): void
     {
         $this->registerTranslations();
@@ -27,32 +27,29 @@ class EventosServiceProvider extends ServiceProvider
         $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->name, 'Database/migrations'));
 
-        // 🔔 Registrar el comando en el scheduler (cron)
+        // 🔔 Agregar el canal WhatsApp como driver válido
+        Notification::extend('whatsapp', function ($app) {
+            return new WhatsAppChannel($app->make(WhatsAppService::class));
+        });
+
+        // 🕒 Programar cron del comando
         $this->app->booted(function () {
             $schedule = $this->app->make(Schedule::class);
             $schedule->command('alertapro:notificar')->hourly();
         });
     }
 
-    /**
-     * Registrar bindings, providers y comandos.
-     */
     public function register(): void
     {
-        // Registrar los proveedores de eventos y rutas
         $this->app->register(EventServiceProvider::class);
         $this->app->register(RouteServiceProvider::class);
 
-        // 🔧 Registrar el comando personalizado
         $this->commands([
             NotificarEventosCommand::class,
         ]);
     }
 
-    /**
-     * Registrar traducciones del módulo.
-     */
-    public function registerTranslations(): void
+    protected function registerTranslations(): void
     {
         $langPath = resource_path('lang/modules/' . $this->nameLower);
 
@@ -65,9 +62,6 @@ class EventosServiceProvider extends ServiceProvider
         }
     }
 
-    /**
-     * Registrar configuración del módulo.
-     */
     protected function registerConfig(): void
     {
         $configPath = module_path($this->name, config('modules.paths.generator.config.path'));
@@ -101,14 +95,10 @@ class EventosServiceProvider extends ServiceProvider
     {
         $existing = config($key, []);
         $module_config = require $path;
-
         config([$key => array_replace_recursive($existing, $module_config)]);
     }
 
-    /**
-     * Registrar vistas del módulo.
-     */
-    public function registerViews(): void
+    protected function registerViews(): void
     {
         $viewPath = resource_path('views/modules/' . $this->nameLower);
         $sourcePath = module_path($this->name, 'Resources/views');

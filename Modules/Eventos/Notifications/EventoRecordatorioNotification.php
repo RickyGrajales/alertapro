@@ -7,8 +7,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Modules\Eventos\Models\Event;
-use Modules\Eventos\Notifications\Canales\WhatsAppChannel;
-
 
 class EventoRecordatorioNotification extends Notification implements ShouldQueue
 {
@@ -23,11 +21,19 @@ class EventoRecordatorioNotification extends Notification implements ShouldQueue
 
     public function via($notifiable)
     {
-        return ['mail', 'database'];
+        $canales = ['mail', 'database'];
+
+        if (!empty($notifiable->telefono)) {
+            $canales[] = 'whatsapp';
+        }
+
+        return $canales;
     }
 
     public function toMail($notifiable)
     {
+        \Log::info("📧 Enviando correo a: {$notifiable->email}");
+
         return (new MailMessage)
             ->subject("⏰ Recordatorio: {$this->evento->titulo}")
             ->greeting("Hola {$notifiable->nombre},")
@@ -44,5 +50,10 @@ class EventoRecordatorioNotification extends Notification implements ShouldQueue
             'evento_id' => $this->evento->id,
             'fecha' => now(),
         ];
+    }
+
+    public function toWhatsApp($notifiable)
+    {
+        return "📅 *Recordatorio de evento:* {$this->evento->titulo}\n📆 Fecha límite: {$this->evento->due_date}\n💬 Estado: {$this->evento->estado}";
     }
 }
