@@ -24,27 +24,29 @@
 
             <!-- Menú -->
             <nav class="p-4 space-y-1">
-                <a href="{{ route('dashboard') }}" class="flex items-center px-4 py-2 rounded hover:bg-blue-700">
+                <a href="{{ route('dashboard') }}" class="flex items-center px-4 py-2 rounded hover:bg-blue-700 transition">
                     <i class="fas fa-chart-line mr-2"></i> Dashboard
                 </a>
-                <a href="{{ route('usuarios.index') }}" class="flex items-center px-4 py-2 rounded hover:bg-blue-700">
+                <a href="{{ route('usuarios.index') }}" class="flex items-center px-4 py-2 rounded hover:bg-blue-700 transition">
                     <i class="fas fa-users mr-2"></i> Usuarios
                 </a>
-                <a href="{{ route('organizaciones.index') }}" class="flex items-center px-4 py-2 rounded hover:bg-blue-700">
+                <a href="{{ route('organizaciones.index') }}" class="flex items-center px-4 py-2 rounded hover:bg-blue-700 transition">
                     <i class="fas fa-building mr-2"></i> Organizaciones
                 </a>
+
                 @role('Admin')
-                <a href="{{ route('plantillas.index') }}" class="flex items-center px-4 py-2 rounded hover:bg-blue-700">
+                <a href="{{ route('plantillas.index') }}" class="flex items-center px-4 py-2 rounded hover:bg-blue-700 transition">
                     <i class="fas fa-file-alt mr-2"></i> Plantillas
                 </a>
-                <a href="{{ route('eventos.index') }}" class="flex items-center px-4 py-2 rounded hover:bg-blue-700">
+                <a href="{{ route('eventos.index') }}" class="flex items-center px-4 py-2 rounded hover:bg-blue-700 transition">
                     <i class="fas fa-calendar-alt mr-2"></i> Eventos
                 </a>
-                <a href="{{ route('notificaciones.index') }}" class="flex items-center px-4 py-2 rounded hover:bg-blue-700">
+                <a href="{{ route('notificaciones.index') }}" class="flex items-center px-4 py-2 rounded hover:bg-blue-700 transition">
                     <i class="fas fa-bell mr-2"></i> Notificaciones
                 </a>
                 @endrole
-                <a href="{{ route('reprogramaciones.index') }}" class="flex items-center px-4 py-2 rounded hover:bg-blue-700">
+
+                <a href="{{ route('reprogramaciones.index') }}" class="flex items-center px-4 py-2 rounded hover:bg-blue-700 transition">
                     <i class="fas fa-rotate-right mr-2"></i> Reprogramaciones
                 </a>
             </nav>
@@ -52,7 +54,7 @@
             <!-- Cerrar sesión -->
             <form method="POST" action="{{ route('logout') }}" class="p-4 border-t border-blue-800 bg-blue-950">
                 @csrf
-                <button type="submit" class="w-full bg-red-600 py-2 rounded hover:bg-red-700">
+                <button type="submit" class="w-full bg-red-600 py-2 rounded hover:bg-red-700 transition">
                     <i class="fas fa-sign-out-alt mr-2"></i> Cerrar sesión
                 </button>
             </form>
@@ -69,7 +71,7 @@
             <!-- Header -->
             <header class="flex justify-between items-center bg-white shadow px-4 py-3 md:px-6">
                 <!-- Botón menú móvil -->
-                <button class="text-2xl text-blue-700 md:hidden" onclick="toggleSidebar()">
+                <button class="text-2xl text-blue-700 md:hidden" onclick="toggleSidebar()" aria-label="Abrir menú">
                     <i class="fas fa-bars"></i>
                 </button>
 
@@ -78,8 +80,8 @@
                     $notificaciones = auth()->user()->unreadNotifications ?? collect();
                 @endphp
                 <div class="relative">
-                    <button id="notifButton" class="relative text-2xl text-blue-700">
-                        🔔
+                    <button id="notifButton" class="relative text-2xl text-blue-700" aria-label="Abrir notificaciones">
+                        <i class="fas fa-bell"></i>
                         @if($notificaciones->count() > 0)
                             <span class="absolute -top-2 -right-3 bg-red-600 text-white text-xs rounded-full px-2">
                                 {{ $notificaciones->count() }}
@@ -87,7 +89,7 @@
                         @endif
                     </button>
 
-                    <div id="notifMenu" class="hidden absolute right-0 mt-2 w-80 bg-white border rounded shadow-lg z-50">
+                    <div id="notifMenu" class="hidden absolute right-0 mt-2 w-80 bg-white border rounded shadow-lg z-50 max-h-96 overflow-y-auto">
                         <div class="p-3 border-b font-bold text-gray-700">Notificaciones</div>
                         @forelse($notificaciones as $n)
                             <div class="p-3 border-b hover:bg-gray-50">

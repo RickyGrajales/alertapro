@@ -16,14 +16,25 @@ use Modules\Eventos\Notifications\EventoDelegadoNotification;
 class EventosController extends Controller
 {
     // Listar
-    public function index()
-    {
-        $eventos = Event::with(['responsable', 'plantilla'])
-            ->orderBy('due_date', 'desc')
-            ->paginate(10);
+   public function index()
+{
+    $user = auth()->user();
 
-        return view('eventos::index', compact('eventos'));
+    // Base query con relaciones
+    $query = \Modules\Eventos\Models\Event::with(['responsable', 'plantilla'])
+        ->orderBy('due_date', 'desc');
+
+    // Si es un empleado, solo ve sus propios eventos
+    if ($user->rol === 'Empleado') {
+        $query->where('responsable_id', $user->id);
     }
+
+    $eventos = $query->paginate(10);
+
+    return view('eventos::index', compact('eventos'));
+}
+
+
 
     // Formulario crear
     public function create()
@@ -48,6 +59,7 @@ class EventosController extends Controller
         $validated['estado'] = 'Pendiente';
 
         $evento = Event::create($validated);
+        $evento->generarChecklistDesdePlantilla();
 
         if ($evento->plantilla_id && method_exists($evento, 'generarChecklistDesdePlantilla')) {
             $evento->generarChecklistDesdePlantilla();

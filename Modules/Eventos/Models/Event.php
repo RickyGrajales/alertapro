@@ -49,9 +49,23 @@ class Event extends Model
     }
 
     // Placeholder para generación de checklist desde plantilla (Sprint siguiente)
-    public function generarChecklistDesdePlantilla()
+
+        public function generarChecklistDesdePlantilla()
     {
-        // Implementar en próximos sprints
+        if (!$this->plantilla_id) return;
+
+        $plantilla = $this->plantilla()->with('items')->first();
+        if (!$plantilla || $plantilla->items->isEmpty()) return;
+
+        foreach ($plantilla->items as $item) {
+            \Modules\Eventos\Models\EventoItem::create([
+                'evento_id' => $this->id,
+                'nombre' => $item->nombre,
+                'descripcion' => $item->descripcion,
+                'obligatorio' => $item->obligatorio,
+            ]);
+        }
     }
 }
+   
 

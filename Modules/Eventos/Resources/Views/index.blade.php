@@ -4,9 +4,17 @@
 <div class="container mx-auto p-6">
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold text-gray-800">📅 Eventos</h2>
+    @if(auth()->user()->hasRole('Empleado'))
+    <p class="text-sm text-gray-500 mb-4">
+        Mostrando únicamente los eventos asignados a ti.
+    </p>
+    @endif
+
+        @role('Admin')
         <a href="{{ route('eventos.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
             ➕ Nuevo Evento
         </a>
+        @endrole
     </div>
 
     {{-- Mensajes de sesión --}}
@@ -53,25 +61,32 @@
                         </span>
                     </td>
                     <td class="p-3 flex flex-wrap justify-center gap-2 text-center">
-                        <a href="{{ route('eventos.show', $evento) }}" class="text-gray-600 hover:text-black">👁 Ver</a>
-                        <a href="{{ route('eventos.edit', $evento) }}" class="text-blue-600 hover:underline">✏️ Editar</a>
-                        <a href="{{ route('reprogramaciones.create', $evento->id) }}" class="text-purple-600 hover:underline">🔁 Reprogramar</a>
-                        <a href="{{ route('delegaciones.create', $evento->id) }}" class="text-blue-600 hover:underline">👤 Delegar</a>
 
-                        <!-- Botón de notificación manual -->
-                        <a href="{{ route('notificaciones.enviar', $evento->id) }}"
-                           class="inline-flex items-center px-2 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 transition"
-                           onclick="return confirm('¿Enviar notificación manual a {{ $evento->responsable->nombre ?? 'el responsable' }}?')">
-                            <i class="fas fa-paper-plane mr-1"></i> Notificar
-                        </a>
+    {{-- Todos pueden ver --}}
+    <a href="{{ route('eventos.show', $evento) }}" class="text-gray-600 hover:text-black">👁 Ver</a>
 
-                        <form method="POST" action="{{ route('eventos.destroy', $evento) }}" 
-                              onsubmit="return confirm('¿Eliminar este evento?')">
-                            @csrf 
-                            @method('DELETE')
-                            <button class="text-red-600 hover:underline">🗑 Eliminar</button>
-                        </form>
-                    </td>
+    {{-- Solo Admin puede editar, delegar, notificar o eliminar --}}
+    @role('Admin')
+        <a href="{{ route('eventos.edit', $evento) }}" class="text-blue-600 hover:underline">✏️ Editar</a>
+        <a href="{{ route('reprogramaciones.create', $evento->id) }}" class="text-purple-600 hover:underline">🔁 Reprogramar</a>
+        <a href="{{ route('delegaciones.create', $evento->id) }}" class="text-blue-600 hover:underline">👤 Delegar</a>
+
+        <a href="{{ route('notificaciones.enviar', $evento->id) }}"
+           class="inline-flex items-center px-2 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 transition"
+           onclick="return confirm('¿Enviar notificación manual a {{ $evento->responsable->nombre ?? 'el responsable' }}?')">
+            <i class="fas fa-paper-plane mr-1"></i> Notificar
+        </a>
+
+        <form method="POST" action="{{ route('eventos.destroy', $evento) }}" 
+              onsubmit="return confirm('¿Eliminar este evento?')" class="inline">
+            @csrf 
+            @method('DELETE')
+            <button class="text-red-600 hover:underline">🗑 Eliminar</button>
+        </form>
+    @endrole
+
+</td>
+
                 </tr>
                 @endforeach
             </tbody>
