@@ -14,23 +14,25 @@ use Modules\Eventos\Http\Controllers\DocumentosController;
 |--------------------------------------------------------------------------
 */
 
-// 🟦 Rutas accesibles para cualquier usuario autenticado
+// 🟦 Rutas accesibles a cualquier usuario autenticado (Admin o Empleado)
 Route::middleware(['web', 'auth', 'verified'])->group(function () {
 
-    // Listado y vista individual (Admin y Empleado)
+    // 📅 Eventos: listado y vista individual
     Route::get('eventos', [EventosController::class, 'index'])->name('eventos.index');
     Route::get('eventos/{evento}', [EventosController::class, 'show'])->name('eventos.show');
 
-    // Notificaciones (ver e historial)
+    // 📁 Documentos del evento
+    Route::prefix('eventos/{evento_id}/documentos')->group(function () {
+        Route::get('/', [DocumentosController::class, 'index'])->name('documentos.index');
+        Route::post('/', [DocumentosController::class, 'store'])->name('documentos.store');
+        Route::get('/descargar/{id}', [DocumentosController::class, 'download'])->name('documentos.download');
+        Route::delete('/{id}', [DocumentosController::class, 'destroy'])->name('documentos.destroy');
+    });
+
+    // 🔔 Notificaciones personales
     Route::get('notificaciones', [NotificacionesController::class, 'index'])->name('notificaciones.index');
     Route::get('notificaciones/leidas/todas', [NotificacionesController::class, 'marcarTodasComoLeidas'])
         ->name('notificaciones.marcar-todas');
-
-    Route::prefix('eventos/{evento_id}/documentos')->group(function () {
-    Route::get('/', [DocumentosController::class, 'index'])->name('documentos.index');
-    Route::post('/', [DocumentosController::class, 'store'])->name('documentos.store');
-    Route::get('/descargar/{id}', [DocumentosController::class, 'download'])->name('documentos.download');
-    Route::delete('/{id}', [DocumentosController::class, 'destroy'])->name('documentos.destroy');
 });
 
 // 🟩 Rutas exclusivas del rol ADMIN
@@ -43,13 +45,10 @@ Route::middleware(['web', 'auth', 'verified', 'role:Admin'])->group(function () 
     Route::put('eventos/{evento}', [EventosController::class, 'update'])->name('eventos.update');
     Route::delete('eventos/{evento}', [EventosController::class, 'destroy'])->name('eventos.destroy');
 
-    // Delegación de eventos
-    Route::get('eventos/{id}/delegar', [EventosController::class, 'mostrarFormularioDelegar'])
-        ->name('eventos.delegar.form');
-    Route::post('eventos/{id}/delegar', [EventosController::class, 'delegar'])
-        ->name('eventos.delegar');
+    // 👤 Delegación de eventos
+    Route::get('eventos/{id}/delegar', [EventosController::class, 'mostrarFormularioDelegar'])->name('eventos.delegar.form');
+    Route::post('eventos/{id}/delegar', [EventosController::class, 'delegar'])->name('eventos.delegar');
 
-    // Notificaciones manuales
-    Route::get('notificaciones/enviar/{evento}', [NotificacionesController::class, 'enviarManual'])
-        ->name('notificaciones.enviar');
+    // ✉️ Notificaciones manuales
+    Route::get('notificaciones/enviar/{evento}', [NotificacionesController::class, 'enviarManual'])->name('notificaciones.enviar');
 });

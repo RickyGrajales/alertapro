@@ -6,10 +6,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
-
 class Usuario extends Authenticatable
 {
     use Notifiable, HasRoles;
+
+    protected $guard_name = 'web'; // 👈 IMPORTANTE para Spatie
 
     protected $table = 'usuarios';
 
@@ -17,7 +18,7 @@ class Usuario extends Authenticatable
         'nombre',
         'email',
         'telefono',
-        'password',        
+        'password',
         'rol',
         'activo',
         'organizacion_id',
