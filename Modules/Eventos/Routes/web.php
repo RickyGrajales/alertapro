@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Eventos\Http\Controllers\EventosController;
 use Modules\Eventos\Http\Controllers\NotificacionesController;
+use Modules\Eventos\Http\Controllers\DocumentosController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,6 +25,12 @@ Route::middleware(['web', 'auth', 'verified'])->group(function () {
     Route::get('notificaciones', [NotificacionesController::class, 'index'])->name('notificaciones.index');
     Route::get('notificaciones/leidas/todas', [NotificacionesController::class, 'marcarTodasComoLeidas'])
         ->name('notificaciones.marcar-todas');
+
+    Route::prefix('eventos/{evento_id}/documentos')->group(function () {
+    Route::get('/', [DocumentosController::class, 'index'])->name('documentos.index');
+    Route::post('/', [DocumentosController::class, 'store'])->name('documentos.store');
+    Route::get('/descargar/{id}', [DocumentosController::class, 'download'])->name('documentos.download');
+    Route::delete('/{id}', [DocumentosController::class, 'destroy'])->name('documentos.destroy');
 });
 
 // 🟩 Rutas exclusivas del rol ADMIN

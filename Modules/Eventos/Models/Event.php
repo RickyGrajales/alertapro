@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Modules\Usuarios\Models\Usuario;
 use Modules\Plantillas\Models\Template;
+use Modules\Eventos\Models\EventoItem;
 
 class Event extends Model
 {
@@ -26,19 +27,33 @@ class Event extends Model
         'due_date' => 'date',
     ];
 
-    // Relación con el usuario responsable (módulo Usuarios)
+    /**
+     * Relación con el usuario responsable (módulo Usuarios)
+     */
     public function responsable()
     {
         return $this->belongsTo(Usuario::class, 'responsable_id');
     }
 
-    // Relación con la plantilla (módulo Plantillas)
+    /**
+     * Relación con la plantilla (módulo Plantillas)
+     */
     public function plantilla()
     {
         return $this->belongsTo(Template::class, 'plantilla_id');
     }
 
-    // Accesor visual para badge de estado
+    /**
+     * Relación con los ítems del evento
+     */
+    public function items()
+    {
+        return $this->hasMany(EventoItem::class, 'evento_id');
+    }
+
+    /**
+     * Accesor visual para badge de estado
+     */
     public function getEstadoBadgeAttribute()
     {
         return match ($this->estado) {
@@ -48,17 +63,19 @@ class Event extends Model
         };
     }
 
-    // Placeholder para generación de checklist desde plantilla (Sprint siguiente)
-
-        public function generarChecklistDesdePlantilla()
+    /**
+     * Genera automáticamente los ítems del evento desde la plantilla asociada
+     */
+    public function generarChecklistDesdePlantilla()
     {
         if (!$this->plantilla_id) return;
 
         $plantilla = $this->plantilla()->with('items')->first();
+
         if (!$plantilla || $plantilla->items->isEmpty()) return;
 
         foreach ($plantilla->items as $item) {
-            \Modules\Eventos\Models\EventoItem::create([
+            EventoItem::create([
                 'evento_id' => $this->id,
                 'nombre' => $item->nombre,
                 'descripcion' => $item->descripcion,
@@ -67,5 +84,3 @@ class Event extends Model
         }
     }
 }
-   
-

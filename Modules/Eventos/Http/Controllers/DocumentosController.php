@@ -4,53 +4,69 @@ namespace Modules\Eventos\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Modules\Eventos\Models\DocumentoEvento;
 
 class DocumentosController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Mostrar lista de documentos asociados a eventos.
      */
     public function index()
     {
-        return view('eventos::index');
+        $documentos = DocumentoEvento::with('evento')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('eventos::documentos.index', compact('documentos'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Mostrar formulario de carga de documento.
      */
     public function create()
     {
-        return view('eventos::create');
+        return view('eventos::documentos.create');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Guardar un nuevo documento.
      */
-    public function store(Request $request) {}
+    public function store(Request $request)
+    {
+        $request->validate([
+            'evento_id' => 'required|exists:eventos,id',
+            'archivo' => 'required|file|max:5120', // 5MB
+        ]);
+
+        $path = $request->file('archivo')->store('documentos_eventos', 'public');
+
+        DocumentoEvento::create([
+            'evento_id' => $request->evento_id,
+            'nombre' => $request->file('archivo')->getClientOriginalName(),
+            'ruta' => $path,
+        ]);
+
+        return redirect()->route('documentos.index')->with('success', 'Documento cargado correctamente.');
+    }
 
     /**
-     * Show the specified resource.
+     * Ver detalles del documento.
      */
     public function show($id)
     {
-        return view('eventos::show');
+        $documento = DocumentoEvento::findOrFail($id);
+        return view('eventos::documentos.show', compact('documento'));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Eliminar un documento.
      */
-    public function edit($id)
+    public function destroy($id)
     {
-        return view('eventos::edit');
+        $documento = DocumentoEvento::findOrFail($id);
+        \Storage::disk('public')->delete($documento->ruta);
+        $documento->delete();
+
+        return redirect()->route('documentos.index')->with('success', 'Documento eliminado correctamente.');
     }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id) {}
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id) {}
 }
