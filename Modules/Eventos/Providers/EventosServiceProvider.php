@@ -21,23 +21,27 @@ class EventosServiceProvider extends ServiceProvider
     protected string $nameLower = 'eventos';
 
     public function boot(): void
-    {
-        $this->registerTranslations();
-        $this->registerConfig();
-        $this->registerViews();
-        $this->loadMigrationsFrom(module_path($this->name, 'Database/migrations'));
+{
+    $this->registerTranslations();
+    $this->registerConfig();
+    $this->registerViews();
+    $this->loadMigrationsFrom(module_path($this->name, 'Database/migrations'));
 
-        // 🔔 Agregar el canal WhatsApp como driver válido
-        Notification::extend('whatsapp', function ($app) {
-            return new WhatsAppChannel($app->make(WhatsAppService::class));
-        });
+    // ✅ Cargar rutas del módulo
+    $this->loadRoutesFrom(module_path($this->name, 'Routes/web.php'));
 
-        // 🕒 Programar cron del comando
-        $this->app->booted(function () {
-            $schedule = $this->app->make(Schedule::class);
-            $schedule->command('alertapro:notificar')->hourly();
-        });
-    }
+    // 🔔 Agregar el canal WhatsApp como driver válido
+    Notification::extend('whatsapp', function ($app) {
+        return new WhatsAppChannel($app->make(WhatsAppService::class));
+    });
+
+    // 🕒 Programar cron del comando
+    $this->app->booted(function () {
+        $schedule = $this->app->make(Schedule::class);
+        $schedule->command('alertapro:notificar')->hourly();
+    });
+}
+
 
     public function register(): void
     {

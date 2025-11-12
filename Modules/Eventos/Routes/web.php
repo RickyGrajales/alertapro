@@ -39,7 +39,7 @@ Route::middleware(['web', 'auth', 'verified'])->group(function () {
 Route::middleware(['web', 'auth', 'verified', 'role:Admin'])->group(function () {
 
     // CRUD completo de eventos
-    Route::get('eventos/crear', [EventosController::class, 'create'])->name('eventos.create');
+    Route::get('eventos/create', [EventosController::class, 'create'])->name('eventos.create');
     Route::post('eventos', [EventosController::class, 'store'])->name('eventos.store');
     Route::get('eventos/{evento}/editar', [EventosController::class, 'edit'])->name('eventos.edit');
     Route::put('eventos/{evento}', [EventosController::class, 'update'])->name('eventos.update');
