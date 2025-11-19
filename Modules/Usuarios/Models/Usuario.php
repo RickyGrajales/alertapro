@@ -19,7 +19,6 @@ class Usuario extends Authenticatable
         'email',
         'telefono',
         'password',
-        'rol',
         'activo',
         'organizacion_id',
     ];

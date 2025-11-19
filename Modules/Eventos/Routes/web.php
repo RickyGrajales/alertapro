@@ -14,7 +14,7 @@ use Modules\Eventos\Http\Controllers\DocumentosController;
 |--------------------------------------------------------------------------
 */
 
-// 🟩 Rutas exclusivas del rol ADMIN
+//  Rutas exclusivas del rol ADMIN
 Route::middleware(['web', 'auth', 'verified', 'role:Admin'])->group(function () {
 
     // CRUD completo de eventos
@@ -28,17 +28,17 @@ Route::middleware(['web', 'auth', 'verified', 'role:Admin'])->group(function () 
     Route::get('eventos/{id}/delegar', [EventosController::class, 'mostrarFormularioDelegar'])->name('eventos.delegar.form');
     Route::post('eventos/{id}/delegar', [EventosController::class, 'delegar'])->name('eventos.delegar');
 
-    // ✉️ Notificaciones manuales
+    //  Notificaciones manuales
     Route::get('notificaciones/enviar/{evento}', [NotificacionesController::class, 'enviarManual'])->name('notificaciones.enviar');
 });
-// 🟦 Rutas accesibles a cualquier usuario autenticado (Admin o Empleado)
+//  Rutas accesibles a cualquier usuario autenticado (Admin o Empleado)
 Route::middleware(['web', 'auth', 'verified'])->group(function () {
 
-    // 📅 Eventos: listado y vista individual
+    //  Eventos: listado y vista individual
     Route::get('eventos', [EventosController::class, 'index'])->name('eventos.index');
     Route::get('eventos/{evento}', [EventosController::class, 'show'])->name('eventos.show');
 
-    // 📁 Documentos del evento
+    //  Documentos del evento
     Route::prefix('eventos/{evento_id}/documentos')->group(function () {
         Route::get('/', [DocumentosController::class, 'index'])->name('documentos.index');
         Route::post('/', [DocumentosController::class, 'store'])->name('documentos.store');
@@ -46,7 +46,7 @@ Route::middleware(['web', 'auth', 'verified'])->group(function () {
         Route::delete('/{id}', [DocumentosController::class, 'destroy'])->name('documentos.destroy');
     });
 
-    // 🔔 Notificaciones personales
+    //  Notificaciones personales
     Route::get('notificaciones', [NotificacionesController::class, 'index'])->name('notificaciones.index');
     Route::get('notificaciones/leidas/todas', [NotificacionesController::class, 'marcarTodasComoLeidas'])
         ->name('notificaciones.marcar-todas');

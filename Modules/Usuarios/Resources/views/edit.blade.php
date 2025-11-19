@@ -7,58 +7,90 @@
                 @csrf
                 @method('PUT')
 
+                {{-- Nombre --}}
                 <div>
                     <label class="block text-gray-700">Nombre</label>
-                    <input type="text" name="nombre" value="{{ $usuario->nombre }}" required 
-                           class="w-full border-gray-300 rounded-lg shadow-sm">
+                    <input type="text" name="nombre" value="{{ old('nombre', $usuario->nombre) }}" required
+                        class="w-full border-gray-300 rounded-lg shadow-sm">
                 </div>
 
+                {{-- Email --}}
                 <div>
                     <label class="block text-gray-700">Correo</label>
-                    <input type="email" name="email" value="{{ $usuario->email }}" required 
-                           class="w-full border-gray-300 rounded-lg shadow-sm">
+                    <input type="email" name="email" value="{{ old('email', $usuario->email) }}" required
+                        class="w-full border-gray-300 rounded-lg shadow-sm">
                 </div>
 
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="telefono">Teléfono</label>
-                    <input type="text" name="telefono" id="telefono" value="{{ old('telefono', $usuario->telefono ?? '') }}"
-                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    placeholder="+573001234567">
+                {{-- Teléfono --}}
+                <div>
+                    <label class="block text-gray-700">Teléfono</label>
+                    <input type="text" name="telefono" value="{{ old('telefono', $usuario->telefono) }}"
+                        class="w-full border-gray-300 rounded-lg shadow-sm"
+                        placeholder="+573001234567">
                 </div>
 
-
+                {{-- Rol --}}
                 <div>
                     <label class="block text-gray-700">Rol</label>
                     <select name="rol" class="w-full border-gray-300 rounded-lg shadow-sm">
-                        <option value="Empleado" @selected($usuario->rol === 'Empleado')>Empleado</option>
-                        <option value="Admin" @selected($usuario->rol === 'Admin')>Admin</option>
+                        @foreach($roles as $rol)
+                            <option value="{{ $rol }}" 
+                                @selected($usuario->getRoleNames()->contains($rol))>
+                                {{ $rol }}
+                            </option>
+                        @endforeach
                     </select>
                 </div>
 
+                {{-- Activo --}}
                 <div>
                     <label class="block text-gray-700">Activo</label>
                     <select name="activo" class="w-full border-gray-300 rounded-lg shadow-sm">
-                        <option value="1" @selected($usuario->activo)>Sí</option>
-                        <option value="0" @selected(!$usuario->activo)>No</option>
+                        <option value="1" @selected($usuario->activo == 1)>Sí</option>
+                        <option value="0" @selected($usuario->activo == 0)>No</option>
                     </select>
                 </div>
 
+                {{-- Organización --}}
                 <div>
                     <label class="block text-gray-700">Organización</label>
-                    <input type="number" name="organizacion_id" value="{{ $usuario->organizacion_id }}" 
-                           class="w-full border-gray-300 rounded-lg shadow-sm">
+                    <select name="organizacion_id" class="w-full border-gray-300 rounded-lg shadow-sm">
+                        <option value="">-- Sin organización --</option>
+
+                        @foreach($organizaciones as $org)
+                            <option value="{{ $org->id }}" 
+                                @selected($usuario->organizacion_id == $org->id)>
+                                {{ $org->nombre }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
 
+                {{-- Contraseña opcional --}}
+                <div>
+                    <label class="block text-gray-700">Nueva Contraseña (opcional)</label>
+                    <input type="password" name="password"
+                        class="w-full border-gray-300 rounded-lg shadow-sm">
+                </div>
+
+                <div>
+                    <label class="block text-gray-700">Confirmar Contraseña</label>
+                    <input type="password" name="password_confirmation" 
+                        class="w-full border-gray-300 rounded-lg shadow-sm">
+                </div>
+
+                {{-- Botones --}}
                 <div class="flex space-x-4">
                     <button type="submit" 
-                            class="bg-blue-600 text-black px-4 py-2 rounded hover:bg-blue-700">
+                        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
                         Actualizar
                     </button>
                     <a href="{{ route('usuarios.index') }}" 
-                       class="bg-blue-600 text-black px-4 py-2 rounded hover:bg-blue-700">
+                        class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">
                         Cancelar
                     </a>
                 </div>
+
             </form>
         </div>
     </div>
