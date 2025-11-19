@@ -25,8 +25,8 @@ class OrganizacionesController extends Controller
             }
 
             // Solo Admin puede crear, editar o eliminar
-            if ($user->rol !== 'Admin') {
-                abort(403, 'Acceso denegado: solo los administradores pueden realizar esta acción.');
+            if (!$user->hasRole('Admin')){
+                abort(403, 'Acceso denegado:solo los administradores pueden realizar esta acción');
             }
 
             return $next($request);
