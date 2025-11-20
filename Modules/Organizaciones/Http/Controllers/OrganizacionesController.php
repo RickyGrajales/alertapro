@@ -3,20 +3,20 @@
 namespace Modules\Organizaciones\Http\Controllers;
 
 use Illuminate\Routing\Controller;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Modules\Organizaciones\Models\Organizacion;
 use Modules\Plantillas\Models\Template;
+use Modules\Organizaciones\Http\Requests\OrganizacionRequest;
 
 class OrganizacionesController extends Controller
 {
     public function __construct()
     {
-        // Requiere login para todo excepto listar y mostrar
+        // login requerido excepto index y show
         $this->middleware(['auth'])->except(['index', 'show']);
 
-        // Restricción de rol solo para acciones de gestión
+        // Solo Admin puede gestionar
         $this->middleware(function ($request, $next) {
             $user = auth()->user();
 
@@ -24,25 +24,49 @@ class OrganizacionesController extends Controller
                 return redirect()->route('login');
             }
 
-            // Solo Admin puede crear, editar o eliminar
-            if (!$user->hasRole('Admin')){
-                abort(403, 'Acceso denegado:solo los administradores pueden realizar esta acción');
+            if (!$user->hasRole('Admin')) {
+                abort(403, 'Acceso denegado: solo los administradores pueden realizar esta acción.');
             }
 
             return $next($request);
         })->only(['create', 'store', 'edit', 'update', 'destroy']);
     }
 
-    /** 
-     * Listado de organizaciones
+    /**
+     * Listado con búsqueda, filtros y paginación
      */
     public function index()
     {
-        $organizaciones = Organizacion::orderBy('nombre')->get();
+        $query = Organizacion::query();
+
+        // BUSCADOR
+        if (request()->filled('search')) {
+            $search = request('search');
+
+            $query->where(function ($q) use ($search) {
+                $q->where('nombre', 'like', "%$search%")
+                  ->orWhere('nit', 'like', "%$search%")
+                  ->orWhere('representante', 'like', "%$search%");
+            });
+        }
+
+        // FILTRO CIUDAD
+        if (request()->filled('ciudad')) {
+            $query->where('ciudad', 'like', '%' . request('ciudad') . '%');
+        }
+
+        // FILTRO ESTADO
+        if (request()->has('activo') && request('activo') !== '') {
+            $query->where('activo', request('activo'));
+        }
+
+        // PAGINACIÓN
+        $organizaciones = $query->orderBy('nombre')->paginate(10)->appends(request()->query());
+
         return view('organizaciones::index', compact('organizaciones'));
     }
 
-    /** 
+    /**
      * Formulario de creación
      */
     public function create()
@@ -51,37 +75,18 @@ class OrganizacionesController extends Controller
         return view('organizaciones::create', compact('templates'));
     }
 
-    /** 
+    /**
      * Guardar nueva organización
      */
-    public function store(Request $request)
+    public function store(OrganizacionRequest $request)
     {
-        $request->validate([
-            'nombre' => 'required|string|max:150',
-            'nit' => 'required|string|max:50|unique:organizaciones,nit',
-            'tipo' => 'nullable|string|max:100',
-            'representante' => 'nullable|string|max:150',
-            'email' => 'nullable|email|unique:organizaciones,email',
-            'telefono' => 'nullable|string|max:50',
-            'direccion' => 'nullable|string|max:255',
-            'ciudad' => 'nullable|string|max:100',
-            'departamento' => 'nullable|string|max:100',
-            'pagina_web' => 'nullable|string|max:200',
-            'descripcion' => 'nullable|string',
-            'activo' => 'nullable|boolean',
-            'logo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'templates' => 'nullable|array',
-            'templates.*' => 'integer|exists:templates,id',
-        ]);
+        $data = $request->validated();
 
-        $data = $request->except('templates');
-
-        // Prefijar https:// si la URL no tiene esquema
-        if (!empty($data['pagina_web'])) {
-            $pagina = $data['pagina_web'];
-            if (!str_starts_with($pagina, 'http://') && !str_starts_with($pagina, 'https://')) {
-                $data['pagina_web'] = 'https://' . $pagina;
-            }
+        // Prefijar https:// si no lo trae
+        if (!empty($data['pagina_web']) &&
+            !str_starts_with($data['pagina_web'], 'http://') &&
+            !str_starts_with($data['pagina_web'], 'https://')) {
+            $data['pagina_web'] = 'https://' . $data['pagina_web'];
         }
 
         // Guardar logo
@@ -94,12 +99,11 @@ class OrganizacionesController extends Controller
             $organizacion->templates()->sync($request->input('templates', []));
         });
 
-        return redirect()
-            ->route('organizaciones.index')
-            ->with('success', '✅ Organización creada correctamente.');
+        return redirect()->route('organizaciones.index')
+            ->with('success', 'Organización creada correctamente.');
     }
 
-    /** 
+    /**
      * Mostrar una organización
      */
     public function show(Organizacion $organizacion)
@@ -108,8 +112,8 @@ class OrganizacionesController extends Controller
         return view('organizaciones::show', compact('organizacion'));
     }
 
-    /** 
-     * Formulario de edición
+    /**
+     * Formulario edición
      */
     public function edit(Organizacion $organizacion)
     {
@@ -117,40 +121,20 @@ class OrganizacionesController extends Controller
         return view('organizaciones::edit', compact('organizacion', 'templates'));
     }
 
-    /** 
+    /**
      * Actualizar organización existente
      */
-    public function update(Request $request, Organizacion $organizacion)
+    public function update(OrganizacionRequest $request, Organizacion $organizacion)
     {
-        $request->validate([
-            'nombre' => 'required|string|max:150',
-            'nit' => 'required|string|max:50|unique:organizaciones,nit,' . $organizacion->id,
-            'tipo' => 'nullable|string|max:100',
-            'representante' => 'nullable|string|max:150',
-            'email' => 'nullable|email|unique:organizaciones,email,' . $organizacion->id,
-            'telefono' => 'nullable|string|max:50',
-            'direccion' => 'nullable|string|max:255',
-            'ciudad' => 'nullable|string|max:100',
-            'departamento' => 'nullable|string|max:100',
-            'pagina_web' => 'nullable|string|max:200',
-            'descripcion' => 'nullable|string',
-            'activo' => 'nullable|boolean',
-            'logo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'templates' => 'nullable|array',
-            'templates.*' => 'integer|exists:templates,id',
-        ]);
+        $data = $request->validated();
 
-        $data = $request->except('templates');
-
-        // Prefijar https:// si la URL no tiene esquema
-        if (!empty($data['pagina_web'])) {
-            $pagina = $data['pagina_web'];
-            if (!str_starts_with($pagina, 'http://') && !str_starts_with($pagina, 'https://')) {
-                $data['pagina_web'] = 'https://' . $pagina;
-            }
+        // Prefijar https:// si no lo trae
+        if (!empty($data['pagina_web']) &&
+            !str_starts_with($data['pagina_web'], 'http://') &&
+            !str_starts_with($data['pagina_web'], 'https://')) {
+            $data['pagina_web'] = 'https://' . $data['pagina_web'];
         }
 
-        // Actualizar logo
         if ($request->hasFile('logo')) {
             if ($organizacion->logo) {
                 Storage::disk('public')->delete($organizacion->logo);
@@ -163,13 +147,12 @@ class OrganizacionesController extends Controller
             $organizacion->templates()->sync($request->input('templates', []));
         });
 
-        return redirect()
-            ->route('organizaciones.index')
-            ->with('success', '✅ Organización actualizada correctamente.');
+        return redirect()->route('organizaciones.index')
+            ->with('success', 'Organización actualizada correctamente.');
     }
 
-    /** 
-     * Eliminar organización
+    /**
+     * Eliminar
      */
     public function destroy(Organizacion $organizacion)
     {
@@ -183,8 +166,7 @@ class OrganizacionesController extends Controller
             $organizacion->delete();
         });
 
-        return redirect()
-            ->route('organizaciones.index')
-            ->with('success', '🗑️ Organización eliminada correctamente.');
+        return redirect()->route('organizaciones.index')
+            ->with('success', 'Organización eliminada correctamente.');
     }
 }

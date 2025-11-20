@@ -14,6 +14,11 @@ class Organizacion extends Model
         'descripcion', 'activo'
     ];
 
+
+    protected $casts = [
+        'activo' => 'boolean',
+    ];
+
     public function usuarios()
     {
         return $this->hasMany(\Modules\Usuarios\Models\Usuario::class, 'organizacion_id');
@@ -28,6 +33,4 @@ class Organizacion extends Model
         'plantilla_id'
     )->withTimestamps();
 }
-
-
 }
