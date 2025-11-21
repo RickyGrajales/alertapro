@@ -3,55 +3,33 @@
 @section('content')
 <div class="container mx-auto p-6">
     <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-bold">📄 Detalle de Plantilla</h2>
-        <a href="{{ route('plantillas.index') }}" class="text-blue-600 hover:underline">⬅ Volver</a>
+        <h1 class="text-2xl font-bold">{{ $template->nombre }}</h1>
+        <a href="{{ route('plantillas.index') }}" class="px-3 py-2 bg-gray-500 text-white rounded">Volver</a>
     </div>
 
     <div class="bg-white shadow rounded p-6">
-        <h3 class="text-lg font-semibold mb-2">{{ $plantilla->nombre }}</h3>
-        <p class="text-gray-600 mb-4">{{ $plantilla->descripcion }}</p>
+        <p class="mb-4 text-gray-700">{{ $template->descripcion }}</p>
 
-        <div class="grid grid-cols-2 gap-4 mb-6">
-            <div>
-                <strong>Recurrencia:</strong> {{ ucfirst($plantilla->recurrencia) }}
-            </div>
-            <div>
-                <strong>Estado:</strong> {{ $plantilla->activo ? '✔️ Activa' : '❌ Inactiva' }}
-            </div>
-        </div>
+        <h3 class="font-semibold mt-4">Ítems</h3>
+        <ul class="mb-4">
+            @foreach($template->items as $item)
+                <li class="py-1">• {{ $item->titulo }} @if($item->requerido) <span class="text-red-500">(obligatorio)</span> @endif</li>
+            @endforeach
+        </ul>
 
-        <!-- Ítems -->
-        <h4 class="font-semibold mb-2">📋 Ítems</h4>
-        @if($plantilla->items->count())
-            <ul class="list-disc ml-6 mb-6">
-                @foreach($plantilla->items as $item)
-                <li>
-                    <span class="font-semibold">{{ $item->nombre }}</span> - {{ $item->descripcion }}
-                    @if($item->obligatorio)
-                        <span class="text-red-600 font-semibold ml-2">(Obligatorio)</span>
-                    @endif
-                </li>
-                @endforeach
-            </ul>
-        @else
-            <p class="text-gray-500 mb-6">No hay ítems configurados.</p>
-        @endif
+        <h3 class="font-semibold mt-4">Reglas de Notificación</h3>
+        <ul>
+            @foreach($template->rules as $r)
+                <li class="py-1">• {{ $r->canal }} — {{ $r->momento }} {{ $r->offset_days }} días @if($r->hora) a las {{ $r->hora }} @endif</li>
+            @endforeach
+        </ul>
 
-        <!-- Reglas -->
-        <h4 class="font-semibold mb-2">🔔 Reglas de Notificación</h4>
-        @if($plantilla->rules->count())
-            <ul class="list-disc ml-6">
-                @foreach($plantilla->rules as $rule)
-                <li>
-                    Canal: <strong>{{ ucfirst($rule->canal) }}</strong> | 
-                    Días de aviso: <strong>{{ $rule->offset }}</strong> | 
-                    Mensaje: <em>{{ $rule->mensaje }}</em>
-                </li>
-                @endforeach
-            </ul>
-        @else
-            <p class="text-gray-500">No hay reglas de notificación configuradas.</p>
-        @endif
+        <h3 class="font-semibold mt-4">Organizaciones asignadas</h3>
+        <ul>
+            @foreach($template->organizaciones as $org)
+                <li class="py-1">• {{ $org->nombre }}</li>
+            @endforeach
+        </ul>
     </div>
 </div>
 @endsection

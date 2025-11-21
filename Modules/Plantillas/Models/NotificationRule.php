@@ -7,18 +7,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class NotificationRule extends Model
 {
-    use HasFactory;
-
     protected $table = 'notification_rules';
 
     protected $fillable = [
         'template_id',
         'canal',
-        'offset',
-        'mensaje',
+        'offset_days',
+        'momento',
+        'hora',
     ];
 
-    // Relación inversa
     public function template()
     {
         return $this->belongsTo(Template::class, 'template_id');

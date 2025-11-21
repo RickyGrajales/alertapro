@@ -7,19 +7,21 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class TemplateItem extends Model
 {
-    use HasFactory;
-
     protected $table = 'template_items';
 
     protected $fillable = [
         'template_id',
-        'nombre',
-        'descripcion',
+        'titulo',
+        'detalle',
         'orden',
-        'obligatorio',
+        'requerido',
+        'tipo',
     ];
 
-    // Relación inversa
+    protected $casts = [
+        'requerido' => 'boolean',
+    ];
+
     public function template()
     {
         return $this->belongsTo(Template::class, 'template_id');

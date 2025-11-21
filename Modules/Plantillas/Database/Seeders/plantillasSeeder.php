@@ -9,56 +9,26 @@ use Modules\Plantillas\Models\NotificationRule;
 
 class PlantillasSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
-        // Plantilla de ejemplo
-        $plantilla = Template::create([
-            'nombre' => 'Informe Mensual de Cumplimiento',
-            'descripcion' => 'Checklist mensual para verificar cumplimiento en todas las áreas de la organización.',
-            'recurrencia' => 'mensual',
-            'activo' => true,
+        $t = Template::create([
+            'nombre' => 'Plantilla ejemplo - Checklist mensual',
+            'descripcion' => 'Checklist mensual general.',
+            'recurrencia' => 'Mensual',
+            'activa' => true,
         ]);
 
-        // Ítems
-        $items = [
-            ['nombre' => 'Recolectar datos de operaciones', 'descripcion' => 'Solicitar datos al área de operaciones', 'orden' => 1, 'obligatorio' => true],
-            ['nombre' => 'Subir documento PDF', 'descripcion' => 'Cargar el informe en formato PDF', 'orden' => 2, 'obligatorio' => true],
-            ['nombre' => 'Revisión del supervisor', 'descripcion' => 'El supervisor debe aprobar el documento', 'orden' => 3, 'obligatorio' => false],
-        ];
-
-        foreach ($items as $item) {
-            $plantilla->items()->create($item);
-        }
-
-        // Reglas de notificación
-        $rules = [
-            ['canal' => 'email', 'offset' => -3, 'mensaje' => 'Recordatorio: el informe vence en 3 días'],
-            ['canal' => 'whatsapp', 'offset' => 0, 'mensaje' => 'Hoy vence el informe mensual'],
-        ];
-
-        foreach ($rules as $rule) {
-            $plantilla->rules()->create($rule);
-        }
-
-        // Otra plantilla opcional
-        $plantilla2 = Template::create([
-            'nombre' => 'Revisión de Contratos Anual',
-            'descripcion' => 'Checklist para verificar que los contratos de proveedores estén al día.',
-            'recurrencia' => 'anual',
-            'activo' => true,
+        $t->items()->createMany([
+            ['titulo' => 'Verificar documentos', 'detalle' => 'Revisar que estén completos', 'orden'=>1, 'requerido'=>1, 'tipo'=>'texto'],
+            ['titulo' => 'Fotos evidencia', 'detalle' => 'Subir fotos', 'orden'=>2, 'requerido'=>0, 'tipo'=>'archivo'],
+            ['titulo' => 'Confirmar asistencia', 'detalle' => '', 'orden'=>3, 'requerido'=>0, 'tipo'=>'checkbox'],
         ]);
 
-        $plantilla2->items()->create([
-            'nombre' => 'Revisar contratos vigentes',
-            'descripcion' => 'Verificar fechas de vencimiento',
-            'orden' => 1,
-            'obligatorio' => true,
-        ]);
-
-        $plantilla2->rules()->create([
+        $t->rules()->create([
             'canal' => 'email',
-            'offset' => -7,
-            'mensaje' => 'Recordatorio: la revisión de contratos es en una semana',
+            'offset_days' => 2,
+            'momento' => 'antes',
+            'hora' => '08:00',
         ]);
     }
 }

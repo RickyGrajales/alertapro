@@ -42,7 +42,7 @@ class UsuariosController extends Controller
             $usuarios = $query->orderBy('id', 'desc')->paginate(10);
         }
 
-        // 🔥 Auto-fix de roles faltantes (solo una vez por usuario)
+        //  Auto-fix de roles faltantes (solo una vez por usuario)
         foreach (Usuario::all() as $u) {
             if ($u->rol && !$u->hasAnyRole(['Admin', 'Empleado'])) {
                 $u->syncRoles([$u->rol]);
@@ -73,7 +73,7 @@ class UsuariosController extends Controller
             'rol' => $request->rol, // importante para BD
         ]);
 
-        // 🔥 Spatie role
+        //  Spatie role
         $user->assignRole($request->rol);
 
         return redirect()->route('usuarios.index')
@@ -113,7 +113,7 @@ class UsuariosController extends Controller
             $usuario->save();
         }
 
-        // 🔥 sincronizar rol Spatie
+        //  sincronizar rol Spatie
         $usuario->syncRoles([$request->rol]);
 
         return redirect()->route('usuarios.index')

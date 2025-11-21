@@ -7,47 +7,62 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Template extends Model
 {
-    use HasFactory;
-
     protected $table = 'templates';
 
     protected $fillable = [
         'nombre',
         'descripcion',
         'recurrencia',
-        'activo',
+        'activa',
     ];
 
-    // Relación con ítems
+    protected $casts = [
+        'activa' => 'boolean',
+    ];
+
     public function items()
     {
-        return $this->hasMany(TemplateItem::class, 'template_id');
+        return $this->hasMany(TemplateItem::class, 'template_id')->orderBy('orden');
     }
 
-    // Relación con reglas
     public function rules()
     {
         return $this->hasMany(NotificationRule::class, 'template_id');
     }
 
-    // Eliminar en cascada
-    protected static function booted()
-    {
-        static::deleting(function ($template) {
-            $template->items()->delete();
-            $template->rules()->delete();
-        });
-    }
-
-
     public function organizaciones()
-{
-    return $this->belongsToMany(
-        \Modules\Organizaciones\Models\Organizacion::class,
-        'organizacion_plantilla',
-        'plantilla_id',
-        'organizacion_id'
-    )->withTimestamps();
+    {
+        return $this->belongsToMany(\Modules\Organizaciones\Models\Organizacion::class, 'organizacion_plantilla', 'plantilla_id', 'organizacion_id');
+    }
 }
+Modules/Plantillas/Models/TemplateItem.php
+php
+Copiar código
+<?php
 
+namespace Modules\Plantillas\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class TemplateItem extends Model
+{
+    protected $table = 'template_items';
+
+    protected $fillable = [
+        'template_id',
+        'titulo',
+        'detalle',
+        'orden',
+        'requerido',
+        'tipo',
+    ];
+
+    protected $casts = [
+        'requerido' => 'boolean',
+    ];
+
+    public function template()
+    {
+        return $this->belongsTo(Template::class, 'template_id');
+    }
 }
