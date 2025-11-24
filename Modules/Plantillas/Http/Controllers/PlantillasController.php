@@ -3,21 +3,20 @@
 namespace Modules\Plantillas\Http\Controllers;
 
 use Illuminate\Routing\Controller;
+use Illuminate\Http\Request;
 use Modules\Plantillas\Models\Template;
 use Modules\Plantillas\Models\TemplateItem;
 use Modules\Plantillas\Models\NotificationRule;
-use Modules\Organizaciones\Models\Organizacion;
 use Modules\Plantillas\Http\Requests\StoreTemplateRequest;
 use Modules\Plantillas\Http\Requests\UpdateTemplateRequest;
-use Illuminate\Http\Request;
+use Modules\Organizaciones\Models\Organizacion;
 use Illuminate\Support\Facades\DB;
 
 class PlantillasController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth','verified']);
-        $this->middleware('role:Admin')->except(['index','show']);
+        $this->middleware(['auth'])->except(['index','show']);
     }
 
     public function index(Request $request)
@@ -26,8 +25,10 @@ class PlantillasController extends Controller
 
         if ($request->filled('search')) {
             $q = $request->search;
-            $query->where('nombre', 'like', "%{$q}%")
-                  ->orWhere('descripcion', 'like', "%{$q}%");
+            $query->where(function($qbuilder) use ($q) {
+                $qbuilder->where('nombre', 'like', "%{$q}%")
+                         ->orWhere('descripcion', 'like', "%{$q}%");
+            });
         }
 
         $plantillas = $query->orderBy('created_at','desc')->paginate(10);
@@ -44,151 +45,109 @@ class PlantillasController extends Controller
 
     public function store(StoreTemplateRequest $request)
     {
-        DB::beginTransaction();
-        try {
-            $data = $request->only(['nombre','descripcion','recurrencia']);
-            $data['activa'] = $request->has('activa') ? (bool)$request->activa : true;
+        $data = $request->validated();
 
-            $template = Template::create($data);
+        DB::transaction(function () use ($data, $request, &$template) {
 
-            // Items
-            if ($request->filled('items')) {
-                foreach ($request->items as $index => $item) {
-                    $template->items()->create([
-                        'titulo' => $item['titulo'],
-                        'detalle' => $item['detalle'] ?? null,
-                        'orden' => $item['orden'] ?? $index,
-                        'requerido' => $item['requerido'] ?? false,
-                        'tipo' => $item['tipo'] ?? 'texto',
-                    ]);
-                }
+            // Crear plantilla
+            $template = Template::create([
+                'nombre' => $data['nombre'],
+                'descripcion' => $data['descripcion'] ?? null,
+                'recurrencia' => $data['recurrencia'] ?? 'Nunca',
+                'activa' => $data['activa'] ?? true,
+            ]);
+
+            // Crear items
+            foreach ($request->input('items', []) as $item) {
+                $template->items()->create([
+                    'titulo' => $item['titulo'],
+                    'detalle' => $item['detalle'] ?? null,
+                    'orden' => $item['orden'] ?? 0,
+                    'requerido' => !empty($item['requerido']),
+                    'tipo' => $item['tipo'] ?? 'texto',
+                ]);
             }
 
-            // Regla notificación
-            if ($request->filled('rules')) {
-                foreach ($request->rules as $r) {
-                    $template->rules()->create([
-                        'canal' => $r['canal'],
-                        'offset_days' => $r['offset_days'] ?? 0,
-                        'momento' => $r['momento'] ?? 'antes',
-                        'hora' => $r['hora'] ?? null,
-                    ]);
-                }
+            // Crear reglas
+            foreach ($request->input('rules', []) as $rule) {
+                $template->notificationRules()->create([
+                    'canal' => $rule['canal'],
+                    'offset_days' => $rule['offset_days'] ?? 0,
+                    'momento' => $rule['momento'] ?? 'antes',
+                    'hora' => $rule['hora'] ?? null,
+                    'mensaje' => $rule['mensaje'] ?? null,
+                ]);
             }
 
             // Organizaciones pivot
-            if ($request->filled('organizaciones')) {
-                $template->organizaciones()->sync($request->organizaciones);
-            }
+            $template->organizaciones()->sync($request->input('organizaciones', []));
+        });
 
-            DB::commit();
-            return redirect()->route('plantillas.index')->with('success','Plantilla creada correctamente.');
-        } catch (\Throwable $e) {
-            DB::rollBack();
-            \Log::error('Error crear plantilla: '.$e->getMessage());
-            return back()->withInput()->withErrors(['error'=>'Error al crear plantilla: '.$e->getMessage()]);
-        }
+        return redirect()->route('plantillas.index')->with('success', 'Plantilla creada correctamente.');
     }
 
-    public function show(Template $template)
+    public function show(Template $plantilla)
     {
-        $template->load(['items','rules','organizaciones']);
-        return view('plantillas::show', compact('template'));
+        $plantilla->load(['items','notificationRules','organizaciones']);
+        return view('plantillas::show', ['p' => $plantilla]);
     }
 
-    public function edit(Template $template)
+    public function edit(Template $plantilla)
     {
-        $template->load(['items','rules','organizaciones']);
+        $plantilla->load(['items','notificationRules','organizaciones']);
         $organizaciones = Organizacion::select('id','nombre')->orderBy('nombre')->get();
-        return view('plantillas::edit', compact('template','organizaciones'));
+
+        return view('plantillas::edit', compact('plantilla','organizaciones'));
     }
 
-    public function update(UpdateTemplateRequest $request, Template $template)
+    public function update(UpdateTemplateRequest $request, Template $plantilla)
     {
-        DB::beginTransaction();
-        try {
-            $template->update([
-                'nombre' => $request->nombre,
-                'descripcion' => $request->descripcion,
-                'recurrencia' => $request->recurrencia,
-                'activa' => $request->has('activa') ? (bool)$request->activa : false,
+        $data = $request->validated();
+
+        DB::transaction(function () use ($data, $request, $plantilla) {
+
+            // Actualizar plantilla
+            $plantilla->update([
+                'nombre' => $data['nombre'],
+                'descripcion' => $data['descripcion'] ?? null,
+                'recurrencia' => $data['recurrencia'] ?? 'Nunca',
+                'activa' => $data['activa'] ?? true,
             ]);
 
-            // Items: actualizar/crear/eliminar
-            $keep = [];
-            if ($request->filled('items')) {
-                foreach ($request->items as $i => $item) {
-                    if (!empty($item['id'])) {
-                        $it = TemplateItem::find($item['id']);
-                        if ($it) {
-                            $it->update([
-                                'titulo' => $item['titulo'],
-                                'detalle' => $item['detalle'] ?? null,
-                                'orden' => $item['orden'] ?? $i,
-                                'requerido' => $item['requerido'] ?? false,
-                                'tipo' => $item['tipo'] ?? 'texto',
-                            ]);
-                            $keep[] = $it->id;
-                        }
-                    } else {
-                        $new = $template->items()->create([
-                            'titulo' => $item['titulo'],
-                            'detalle' => $item['detalle'] ?? null,
-                            'orden' => $item['orden'] ?? $i,
-                            'requerido' => $item['requerido'] ?? false,
-                            'tipo' => $item['tipo'] ?? 'texto',
-                        ]);
-                        $keep[] = $new->id;
-                    }
-                }
+            // Items: reemplazar todos
+            $plantilla->items()->delete();
+            foreach ($request->input('items', []) as $item) {
+                $plantilla->items()->create([
+                    'titulo' => $item['titulo'],
+                    'detalle' => $item['detalle'] ?? null,
+                    'orden' => $item['orden'] ?? 0,
+                    'requerido' => !empty($item['requerido']),
+                    'tipo' => $item['tipo'] ?? 'texto',
+                ]);
             }
 
-            // Borrar items no enviados
-            $template->items()->whereNotIn('id', $keep)->delete();
-
-            // Rules: sync simple strategy: borrar los que no vienen
-            $keepRules = [];
-            if ($request->filled('rules')) {
-                foreach ($request->rules as $r) {
-                    if (!empty($r['id'])) {
-                        $rule = NotificationRule::find($r['id']);
-                        if ($rule) {
-                            $rule->update([
-                                'canal' => $r['canal'],
-                                'offset_days' => $r['offset_days'] ?? 0,
-                                'momento' => $r['momento'] ?? 'antes',
-                                'hora' => $r['hora'] ?? null,
-                            ]);
-                            $keepRules[] = $rule->id;
-                        }
-                    } else {
-                        $newR = $template->rules()->create([
-                            'canal' => $r['canal'],
-                            'offset_days' => $r['offset_days'] ?? 0,
-                            'momento' => $r['momento'] ?? 'antes',
-                            'hora' => $r['hora'] ?? null,
-                        ]);
-                        $keepRules[] = $newR->id;
-                    }
-                }
+            // Rules: reemplazar todas
+            $plantilla->notificationRules()->delete();
+            foreach ($request->input('rules', []) as $rule) {
+                $plantilla->notificationRules()->create([
+                    'canal' => $rule['canal'],
+                    'offset_days' => $rule['offset_days'] ?? 0,
+                    'momento' => $rule['momento'] ?? 'antes',
+                    'hora' => $rule['hora'] ?? null,
+                    'mensaje' => $rule['mensaje'] ?? null,
+                ]);
             }
-            $template->rules()->whereNotIn('id', $keepRules)->delete();
 
-            // Pivot organizaciones
-            $template->organizaciones()->sync($request->input('organizaciones', []));
+            // Organizaciones pivot
+            $plantilla->organizaciones()->sync($request->input('organizaciones', []));
+        });
 
-            DB::commit();
-            return redirect()->route('plantillas.index')->with('success','Plantilla actualizada correctamente.');
-        } catch (\Throwable $e) {
-            DB::rollBack();
-            \Log::error('Error actualizar plantilla: '.$e->getMessage());
-            return back()->withInput()->withErrors(['error'=>'Error al actualizar plantilla: '.$e->getMessage()]);
-        }
+        return redirect()->route('plantillas.index')->with('success', 'Plantilla actualizada correctamente.');
     }
 
-    public function destroy(Template $template)
+    public function destroy(Template $plantilla)
     {
-        $template->delete();
-        return redirect()->route('plantillas.index')->with('success','Plantilla eliminada.');
+        $plantilla->delete();
+        return redirect()->route('plantillas.index')->with('success', 'Plantilla eliminada correctamente.');
     }
 }

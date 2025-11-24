@@ -3,7 +3,6 @@
 namespace Modules\Plantillas\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class NotificationRule extends Model
 {
@@ -15,6 +14,7 @@ class NotificationRule extends Model
         'offset_days',
         'momento',
         'hora',
+        'mensaje',
     ];
 
     public function template()

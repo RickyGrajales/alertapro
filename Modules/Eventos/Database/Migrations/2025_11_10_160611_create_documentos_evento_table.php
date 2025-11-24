@@ -6,25 +6,21 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
-    {
+   public function up(): void
+{
+    if (!Schema::hasTable('documentos_evento')) {
         Schema::create('documentos_evento', function (Blueprint $table) {
             $table->id();
             $table->foreignId('evento_id')->constrained('eventos')->onDelete('cascade');
-            $table->foreignId('user_id')->nullable()->constrained('usuarios')->onDelete('set null');
+            $table->foreignId('user_id')->nullable()->constrained('usuarios')->nullOnDelete();
             $table->string('nombre');
             $table->string('ruta');
             $table->string('tipo')->nullable();
             $table->timestamps();
         });
     }
-
-    /**
-     * Reverse the migrations.
-     */
+}
+    
     public function down(): void
     {
         Schema::dropIfExists('documento_eventos');

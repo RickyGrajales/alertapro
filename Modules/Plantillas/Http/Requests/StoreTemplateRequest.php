@@ -8,13 +8,14 @@ class StoreTemplateRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return auth()->check() && auth()->user()->hasRole('Admin');
+        // el middleware de rol debería controlar el acceso
+        return auth()->check();
     }
 
     public function rules(): array
     {
         return [
-            'nombre' => 'required|string|max:150|unique:templates,nombre',
+            'nombre' => 'required|string|max:150',
             'descripcion' => 'nullable|string',
             'recurrencia' => 'required|in:Nunca,Diaria,Semanal,Mensual,Anual',
             'activa' => 'nullable|boolean',
@@ -23,12 +24,21 @@ class StoreTemplateRequest extends FormRequest
             'items.*.detalle' => 'nullable|string',
             'items.*.orden' => 'nullable|integer',
             'items.*.requerido' => 'nullable|boolean',
+            'items.*.tipo' => 'nullable|string|max:50',
             'rules' => 'nullable|array',
-            'rules.*.canal' => 'required_with:rules|string',
+            'rules.*.canal' => 'required_with:rules|string|max:50',
             'rules.*.offset_days' => 'nullable|integer',
             'rules.*.momento' => 'nullable|in:antes,despues',
+            'rules.*.hora' => 'nullable|string',
             'organizaciones' => 'nullable|array',
             'organizaciones.*' => 'integer|exists:organizaciones,id',
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        if ($this->has('activa')) {
+            $this->merge(['activa' => (bool) $this->input('activa')]);
+        }
     }
 }

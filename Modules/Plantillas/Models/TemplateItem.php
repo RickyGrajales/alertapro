@@ -3,7 +3,6 @@
 namespace Modules\Plantillas\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class TemplateItem extends Model
 {
@@ -15,15 +14,11 @@ class TemplateItem extends Model
         'detalle',
         'orden',
         'requerido',
-        'tipo',
-    ];
-
-    protected $casts = [
-        'requerido' => 'boolean',
+        'tipo'
     ];
 
     public function template()
     {
-        return $this->belongsTo(Template::class, 'template_id');
+        return $this->belongsTo(Template::class);
     }
 }
