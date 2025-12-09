@@ -60,12 +60,19 @@
                                     </span>
                                 </td>
                                 <td class="px-4 py-2">
-                                    @if($org->templates_count)
-                                        <span class="text-sm text-gray-700">{{ $org->templates_count }}</span>
+                                    @if($org->templates->count())
+                                        <div class="flex flex-wrap gap-1">
+                                            @foreach($org->templates as $tpl)
+                                                <span class="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full">
+                                                    {{ $tpl->nombre }}
+                                                </span>
+                                            @endforeach
+                                        </div>
                                     @else
                                         <span class="text-sm text-gray-400">—</span>
                                     @endif
                                 </td>
+
 
                                 <td class="px-4 py-2 flex gap-2">
                                     <a href="{{ route('organizaciones.show', $org->id) }}" class="text-blue-600 hover:underline">Ver</a>

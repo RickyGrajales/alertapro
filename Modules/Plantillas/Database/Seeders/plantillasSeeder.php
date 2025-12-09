@@ -24,7 +24,7 @@ class PlantillasSeeder extends Seeder
             ['titulo' => 'Confirmar asistencia', 'detalle' => '', 'orden'=>3, 'requerido'=>0, 'tipo'=>'checkbox'],
         ]);
 
-        $t->rules()->create([
+        $t->notificationRules()->create([
             'canal' => 'email',
             'offset_days' => 2,
             'momento' => 'antes',

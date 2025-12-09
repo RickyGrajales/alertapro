@@ -56,7 +56,7 @@
                 {{-- Rol --}}
                 <div>
                     <label class="block text-gray-700">Rol</label>
-                    <select name="role" required class="w-full border-gray-300 rounded-lg shadow-sm">
+                    <select name="rol" required class="w-full border-gray-300 rounded-lg shadow-sm">
                         <option value="Empleado">Empleado</option>
                         <option value="Admin">Admin</option>
                     </select>

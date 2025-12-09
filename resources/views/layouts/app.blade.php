@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
@@ -60,7 +61,7 @@
             </form>
         </aside>
 
-        <!-- Overlay (solo móvil) -->
+        <!-- Overlay móvil -->
         <div id="overlay"
              class="fixed inset-0 bg-black opacity-50 hidden md:hidden z-40"
              onclick="toggleSidebar()"></div>
@@ -70,7 +71,8 @@
 
             <!-- Header -->
             <header class="flex justify-between items-center bg-white shadow px-4 py-3 md:px-6">
-                <!-- Botón menú móvil -->
+
+                <!-- Menú móvil -->
                 <button class="text-2xl text-blue-700 md:hidden" onclick="toggleSidebar()" aria-label="Abrir menú">
                     <i class="fas fa-bars"></i>
                 </button>
@@ -80,7 +82,7 @@
                     $notificaciones = auth()->user()->unreadNotifications ?? collect();
                 @endphp
                 <div class="relative">
-                    <button id="notifButton" class="relative text-2xl text-blue-700" aria-label="Abrir notificaciones">
+                    <button id="notifButton" class="relative text-2xl text-blue-700">
                         <i class="fas fa-bell"></i>
                         @if($notificaciones->count() > 0)
                             <span class="absolute -top-2 -right-3 bg-red-600 text-white text-xs rounded-full px-2">
@@ -91,6 +93,7 @@
 
                     <div id="notifMenu" class="hidden absolute right-0 mt-2 w-80 bg-white border rounded shadow-lg z-50 max-h-96 overflow-y-auto">
                         <div class="p-3 border-b font-bold text-gray-700">Notificaciones</div>
+
                         @forelse($notificaciones as $n)
                             <div class="p-3 border-b hover:bg-gray-50">
                                 <p class="text-sm font-semibold">{{ $n->data['titulo'] ?? 'Nueva notificación' }}</p>
@@ -117,30 +120,36 @@
                     </div>
                     <i class="fas fa-user-circle text-3xl text-blue-700"></i>
                 </div>
+
             </header>
 
-            <!-- Contenido -->
+            <!-- Contenido dinámico -->
             <main class="flex-1 p-4 md:p-6 overflow-y-auto">
-                {{ $slot ?? '' }}
-                @yield('content')
+                {{ $slot }}
+
+                {{-- ⚠ IMPORTANTE: Aquí es donde el push funciona --}}
+                @stack('scripts')
             </main>
+
         </div>
     </div>
 
-    <!-- Scripts -->
+    <!-- Scripts principales -->
     <script>
-        // Abrir/Cerrar menú móvil
         function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
+            sidebar = document.getElementById('sidebar');
+            overlay = document.getElementById('overlay');
+
             sidebar.classList.toggle('-translate-x-full');
             overlay.classList.toggle('hidden');
         }
 
-        // Mostrar/Ocultar menú de notificaciones
+        // Notificaciones
         document.getElementById('notifButton')?.addEventListener('click', () => {
             document.getElementById('notifMenu').classList.toggle('hidden');
         });
     </script>
+
 </body>
 </html>
+

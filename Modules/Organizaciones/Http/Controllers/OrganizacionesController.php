@@ -37,7 +37,7 @@ class OrganizacionesController extends Controller
      */
     public function index()
     {
-        $query = Organizacion::query();
+        $query = Organizacion::with('templates')->withCount('templates');
 
         // BUSCADOR
         if (request()->filled('search')) {
