@@ -17,6 +17,11 @@ class TemplateItem extends Model
         'tipo'
     ];
 
+    protected $casts = [
+        'orden' => 'integer',
+        'requerido' => 'boolean',
+    ];
+
     public function template()
     {
         return $this->belongsTo(Template::class);

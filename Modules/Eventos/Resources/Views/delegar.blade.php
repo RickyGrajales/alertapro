@@ -1,8 +1,4 @@
-@extends('layouts.app')
-
-@section('title', 'Delegar Evento')
-
-@section('content')
+<x-app-layout>
 <div class="max-w-3xl mx-auto bg-white p-6 shadow rounded">
     <h2 class="text-2xl font-bold mb-4">👤 Delegar evento: {{ $evento->titulo }}</h2>
 
@@ -43,4 +39,4 @@
         </div>
     </form>
 </div>
-@endsection
+</x-app-layout>

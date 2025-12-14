@@ -17,6 +17,11 @@ class NotificationRule extends Model
         'mensaje',
     ];
 
+    protected $casts = [
+        'offset_days' => 'integer',
+        'hora' => 'string',
+    ];
+
     public function template()
     {
         return $this->belongsTo(Template::class, 'template_id');

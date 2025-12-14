@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<x-app-layout>
 <div class="max-w-4xl mx-auto bg-white p-6 shadow rounded">
     <h2 class="text-2xl font-bold mb-4">📁 Documentos del Evento: {{ $evento->titulo }}</h2>
 
@@ -49,4 +47,4 @@
         <p class="text-gray-600">No hay documentos asociados a este evento.</p>
     @endif
 </div>
-@endsection
+</x-app-layout>

@@ -1,8 +1,4 @@
-@extends('layouts.app')
-
-@section('title', '📄 Detalle de Reprogramación')
-
-@section('content')
+<x-app-layout>
 <div class="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6 mt-8">
     
     {{-- Encabezado --}}
@@ -84,4 +80,5 @@
         </form>
     </div>
 </div>
-@endsection
+</x-app-layout>
+

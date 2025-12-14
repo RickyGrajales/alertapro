@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<x-app-layout>
 <div class="container mx-auto p-6">
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold">📋 Detalle del Evento</h2>
@@ -136,4 +134,5 @@
         @endif
     </div>
 </div>
-@endsection
+</x-app-layout>
+

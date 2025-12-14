@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<x-app-layout>
 <div class="container mx-auto p-6">
     <h2 class="text-2xl font-bold mb-4">Delegación #{{ $delegacion->id }}</h2>
 
@@ -12,4 +10,5 @@
         <p><strong>Fecha:</strong> {{ $delegacion->created_at->format('d/m/Y H:i') }}</p>
     </div>
 </div>
-@endsection
+</x-app-layout>
+

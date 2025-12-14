@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<x-app-layout>
 <div class="container mx-auto p-6 max-w-2xl">
     <h2 class="text-2xl font-bold mb-6">➕ Crear Evento</h2>
 
@@ -65,5 +63,5 @@
         </div>
     </form>
 </div>
-@endsection
+</x-app-layout>
 

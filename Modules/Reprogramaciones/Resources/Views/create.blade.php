@@ -1,8 +1,4 @@
-@extends('layouts.app')
-
-@section('title', '🔁 Reprogramar Evento')
-
-@section('content')
+<x-app-layout>
 <div class="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6 mt-8">
     
     <h1 class="text-2xl font-bold text-gray-800 mb-6">🔁 Reprogramar Evento</h1>
@@ -76,4 +72,4 @@
         </div>
     </form>
 </div>
-@endsection
+</x-app-layout>

@@ -15,16 +15,21 @@ class Template extends Model
         'activa'
     ];
 
+    protected $casts = [
+        'activa' => 'boolean',
+    ];
+
     public function items()
     {
-        return $this->hasMany(TemplateItem::class, 'template_id');
+        return $this->hasMany(TemplateItem::class, 'template_id')
+                    ->orderBy('orden', 'asc');
     }
 
     public function notificationRules()
     {
-        return $this->hasMany(NotificationRule::class, 'template_id');
+        return $this->hasMany(NotificationRule::class, 'template_id')
+                    ->orderBy('offset_days', 'asc');
     }
-
 
     public function organizaciones()
     {

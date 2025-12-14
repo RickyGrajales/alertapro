@@ -16,7 +16,7 @@ class PlantillasController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['index','show']);
+        $this->middleware(['auth']);
     }
 
     public function index(Request $request)
@@ -32,7 +32,6 @@ class PlantillasController extends Controller
         }
 
         $plantillas = $query->orderBy('created_at','desc')->paginate(10);
-        $plantillas->appends($request->all());
 
         return view('plantillas::index', compact('plantillas'));
     }
@@ -45,52 +44,47 @@ class PlantillasController extends Controller
 
     public function store(StoreTemplateRequest $request)
     {
-        $data = $request->validated();
+        $template = DB::transaction(function () use ($request) {
 
-        DB::transaction(function () use ($data, $request, &$template) {
-
-            // Crear plantilla
             $template = Template::create([
-                'nombre' => $data['nombre'],
-                'descripcion' => $data['descripcion'] ?? null,
-                'recurrencia' => $data['recurrencia'] ?? 'Nunca',
-                'activa' => $data['activa'] ?? true,
+                'nombre' => $request->nombre,
+                'descripcion' => $request->descripcion,
+                'recurrencia' => $request->recurrencia,
+                'activa' => $request->activa,
             ]);
 
-            // Crear items
+            // ITEMS
             foreach ($request->input('items', []) as $item) {
                 $template->items()->create([
                     'titulo' => $item['titulo'],
                     'detalle' => $item['detalle'] ?? null,
                     'orden' => $item['orden'] ?? 0,
-                    'requerido' => !empty($item['requerido']),
+                    'requerido' => $item['requerido'] ?? 0,
                     'tipo' => $item['tipo'] ?? 'texto',
                 ]);
             }
 
-            // Crear reglas
+            // RULES
             foreach ($request->input('rules', []) as $rule) {
                 $template->notificationRules()->create([
                     'canal' => $rule['canal'],
                     'offset_days' => $rule['offset_days'] ?? 0,
-                    'momento' => $rule['momento'] ?? 'antes',
-                    'hora' => $rule['hora'] ?? null,
-                    'mensaje' => $rule['mensaje'] ?? null,
+                    'momento' => $rule['momento'],
+                    'hora' => $rule['hora'],
+                    'mensaje' => $rule['mensaje'],
                 ]);
             }
 
-            // Organizaciones pivot
-            $template->organizaciones()->sync($request->input('organizaciones', []));
+            // ORGANIZACIONES
+            $template->organizaciones()->sync($request->organizaciones ?? []);
+
+            return $template;
         });
 
-        return redirect()->route('plantillas.index')->with('success', 'Plantilla creada correctamente.');
+        return redirect()->route('plantillas.index')
+            ->with('success', 'Plantilla creada correctamente.');
     }
 
-    public function show(Template $plantilla)
-    {
-        $plantilla->load(['items','notificationRules','organizaciones']);
-        return view('plantillas::show', ['p' => $plantilla]);
-    }
 
     public function edit(Template $plantilla)
     {
@@ -100,46 +94,52 @@ class PlantillasController extends Controller
         return view('plantillas::edit', compact('plantilla','organizaciones'));
     }
 
+    
+        public function show(Template $plantilla)
+    {
+        $plantilla->load(['items', 'notificationRules', 'organizaciones']);
+
+        return view('plantillas::show', compact('plantilla'));
+    }
+
+
     public function update(UpdateTemplateRequest $request, Template $plantilla)
     {
-        $data = $request->validated();
+        DB::transaction(function () use ($request, $plantilla) {
 
-        DB::transaction(function () use ($data, $request, $plantilla) {
-
-            // Actualizar plantilla
             $plantilla->update([
-                'nombre' => $data['nombre'],
-                'descripcion' => $data['descripcion'] ?? null,
-                'recurrencia' => $data['recurrencia'] ?? 'Nunca',
-                'activa' => $data['activa'] ?? true,
+                'nombre' => $request->nombre,
+                'descripcion' => $request->descripcion,
+                'recurrencia' => $request->recurrencia,
+                'activa' => $request->activa,
             ]);
 
-            // Items: reemplazar todos
+            // REEMPLAZAR ITEMS
             $plantilla->items()->delete();
             foreach ($request->input('items', []) as $item) {
                 $plantilla->items()->create([
                     'titulo' => $item['titulo'],
                     'detalle' => $item['detalle'] ?? null,
                     'orden' => $item['orden'] ?? 0,
-                    'requerido' => !empty($item['requerido']),
+                    'requerido' => $item['requerido'] ?? 0,
                     'tipo' => $item['tipo'] ?? 'texto',
                 ]);
             }
 
-            // Rules: reemplazar todas
+            // REEMPLAZAR RULES
             $plantilla->notificationRules()->delete();
             foreach ($request->input('rules', []) as $rule) {
                 $plantilla->notificationRules()->create([
                     'canal' => $rule['canal'],
                     'offset_days' => $rule['offset_days'] ?? 0,
-                    'momento' => $rule['momento'] ?? 'antes',
-                    'hora' => $rule['hora'] ?? null,
-                    'mensaje' => $rule['mensaje'] ?? null,
+                    'momento' => $rule['momento'],
+                    'hora' => $rule['hora'],
+                    'mensaje' => $rule['mensaje'],
                 ]);
             }
 
-            // Organizaciones pivot
-            $plantilla->organizaciones()->sync($request->input('organizaciones', []));
+            // ORGS
+            $plantilla->organizaciones()->sync($request->organizaciones ?? []);
         });
 
         return redirect()->route('plantillas.index')->with('success', 'Plantilla actualizada correctamente.');

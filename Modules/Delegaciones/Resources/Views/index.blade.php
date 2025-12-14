@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<x-app-layout>
 <div class="container mx-auto p-6">
     <h2 class="text-2xl font-bold mb-4">📜 Historial de Delegaciones</h2>
 
@@ -33,4 +31,5 @@
         </tbody>
     </table>
 </div>
-@endsection
+</x-app-layout>
+
