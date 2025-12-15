@@ -15,23 +15,20 @@ class WhatsAppChannel
         $this->whatsapp = $whatsapp;
     }
 
-    /**
-     * Envía la notificación por WhatsApp (usando el servicio Twilio o 360Dialog)
-     */
     public function send($notifiable, Notification $notification)
     {
         if (!method_exists($notification, 'toWhatsApp')) {
-            Log::warning('❌ La notificación no implementa toWhatsApp(): ' . get_class($notification));
+            Log::warning('❌ Notificación sin toWhatsApp(): ' . get_class($notification));
+            return;
+        }
+
+        $to = $notifiable->telefono ?? null;
+        if (!$to) {
+            Log::warning("❌ Usuario sin teléfono WhatsApp: {$notifiable->email}");
             return;
         }
 
         $message = $notification->toWhatsApp($notifiable);
-        $to = $notifiable->telefono ?? null;
-
-        if (!$to) {
-            Log::warning("❌ Usuario sin teléfono válido para WhatsApp: {$notifiable->email}");
-            return;
-        }
 
         Log::info("📲 Enviando WhatsApp a {$to}");
         $this->whatsapp->send($to, $message);

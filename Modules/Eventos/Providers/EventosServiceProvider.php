@@ -30,10 +30,8 @@ class EventosServiceProvider extends ServiceProvider
     // ✅ Cargar rutas del módulo
     $this->loadRoutesFrom(module_path($this->name, 'Routes/web.php'));
 
-    // 🔔 Agregar el canal WhatsApp como driver válido
-    Notification::extend('whatsapp', function ($app) {
-        return new WhatsAppChannel($app->make(WhatsAppService::class));
-    });
+   
+   
 
     // 🕒 Programar cron del comando
     $this->app->booted(function () {
