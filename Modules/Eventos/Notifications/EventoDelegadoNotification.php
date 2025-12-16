@@ -12,7 +12,7 @@ class EventoDelegadoNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected $evento;
+    protected Event $evento;
     protected $delegador;
 
     public function __construct(Event $evento, $delegador)
@@ -21,21 +21,21 @@ class EventoDelegadoNotification extends Notification implements ShouldQueue
         $this->delegador = $delegador;
     }
 
-    public function via($notifiable)
+    public function via($notifiable): array
     {
         return ['mail', 'database', 'whatsapp'];
     }
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('📌 Nuevo evento delegado: ' . $this->evento->titulo)
-            ->greeting('Hola ' . $notifiable->nombre . ',')
+            ->subject('📌 Nuevo evento delegado')
+            ->greeting("Hola {$notifiable->nombre}")
             ->line("El evento **{$this->evento->titulo}** fue delegado por **{$this->delegador->nombre}**.")
-            ->action('Ver evento', url('/eventos/' . $this->evento->id));
+            ->action('Ver evento', url("/eventos/{$this->evento->id}"));
     }
 
-    public function toDatabase($notifiable)
+    public function toDatabase($notifiable): array
     {
         return [
             'titulo' => 'Evento delegado',
@@ -45,8 +45,11 @@ class EventoDelegadoNotification extends Notification implements ShouldQueue
         ];
     }
 
-    public function toWhatsApp($notifiable)
+    public function toWhatsApp($notifiable): string
     {
-        return "📌 *Evento delegado*\n\n📅 {$this->evento->titulo}\n👤 Delegado por: {$this->delegador->nombre}\n📆 Fecha límite: {$this->evento->due_date->format('d/m/Y')}";
+        return "📌 *Evento delegado*\n\n"
+            ."📅 {$this->evento->titulo}\n"
+            ."👤 Delegado por: {$this->delegador->nombre}\n"
+            ."📆 Fecha límite: {$this->evento->due_date->format('d/m/Y')}";
     }
 }

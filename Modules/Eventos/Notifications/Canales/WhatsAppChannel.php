@@ -8,29 +8,32 @@ use Modules\Eventos\Notifications\Services\WhatsAppService;
 
 class WhatsAppChannel
 {
-    protected $whatsapp;
+    protected WhatsAppService $whatsapp;
 
     public function __construct(WhatsAppService $whatsapp)
     {
         $this->whatsapp = $whatsapp;
     }
 
-    public function send($notifiable, Notification $notification)
+    public function send($notifiable, Notification $notification): void
     {
         if (!method_exists($notification, 'toWhatsApp')) {
             Log::warning('❌ Notificación sin toWhatsApp(): ' . get_class($notification));
             return;
         }
 
-        $to = $notifiable->telefono ?? null;
+        // 🔑 Laravel obtiene el destino desde el modelo
+        $to = $notifiable->routeNotificationFor('whatsapp');
+
         if (!$to) {
-            Log::warning("❌ Usuario sin teléfono WhatsApp: {$notifiable->email}");
+            Log::warning('❌ Usuario sin ruta WhatsApp: ' . get_class($notifiable));
             return;
         }
 
         $message = $notification->toWhatsApp($notifiable);
 
         Log::info("📲 Enviando WhatsApp a {$to}");
+
         $this->whatsapp->send($to, $message);
     }
 }

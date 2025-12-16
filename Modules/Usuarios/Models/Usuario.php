@@ -10,8 +10,7 @@ class Usuario extends Authenticatable
 {
     use Notifiable, HasRoles;
 
-    protected $guard_name = 'web'; // 👈 IMPORTANTE para Spatie
-
+    protected $guard_name = 'web';
     protected $table = 'usuarios';
 
     protected $fillable = [
@@ -31,6 +30,26 @@ class Usuario extends Authenticatable
 
     public function organizacion()
     {
-        return $this->belongsTo(\Modules\Organizaciones\Models\Organizacion::class, 'organizacion_id');
+        return $this->belongsTo(
+            \Modules\Organizaciones\Models\Organizacion::class,
+            'organizacion_id'
+        );
+    }
+
+    /**
+     * 📲 Canal WhatsApp (Twilio)
+     */
+    public function routeNotificationForWhatsApp(): ?string
+    {
+        if (empty($this->telefono)) {
+            return null;
+        }
+
+        // Normaliza el número (ej: 3171234567 → +573171234567)
+        if (!str_starts_with($this->telefono, '+')) {
+            return '+57' . ltrim($this->telefono, '0');
+        }
+
+        return $this->telefono;
     }
 }

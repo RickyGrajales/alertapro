@@ -7,21 +7,20 @@ use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvi
 class EventServiceProvider extends ServiceProvider
 {
     /**
-     * The event handler mappings for the application.
+     * Registro explícito de listeners del módulo Eventos.
      *
-     * @var array<string, array<int, string>>
+     * @var array
      */
-    protected $listen = [];
+    protected $listen = [
+        // Aquí puedes agregar eventos en el futuro
+        // \Modules\Eventos\Events\EventoCreado::class => [
+        //     \Modules\Eventos\Listeners\EnviarNotificacionEvento::class,
+        // ],
+    ];
 
     /**
-     * Indicates if events should be discovered.
-     *
-     * @var bool
+     * IMPORTANTE:
+     * No se tipa esta propiedad para evitar error fatal en PHP.
      */
-    protected static $shouldDiscoverEvents = true;
-
-    /**
-     * Configure the proper event listeners for email verification.
-     */
-    protected function configureEmailVerification(): void {}
+    protected static $shouldDiscoverEvents = false;
 }
