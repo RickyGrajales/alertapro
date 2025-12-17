@@ -5,8 +5,10 @@ namespace Modules\Eventos\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Modules\Eventos\Models\DocumentoEvento;
 use Modules\Eventos\Models\Event;
+use Modules\Eventos\Models\NotificacionLog;
 
 class DocumentosController extends Controller
 {
@@ -16,6 +18,7 @@ class DocumentosController extends Controller
     public function index($eventoId)
     {
         $evento = Event::findOrFail($eventoId);
+
         $documentos = DocumentoEvento::where('evento_id', $eventoId)
             ->with('usuario')
             ->orderBy('created_at', 'desc')
@@ -27,92 +30,114 @@ class DocumentosController extends Controller
     /**
      * Guarda un documento asociado a un evento.
      */
-   public function store(Request $request, $evento_id)
-{
-    $request->validate([
-        'archivo' => 'required|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:5120',
-    ]);
-
-    $evento = \Modules\Eventos\Models\Event::findOrFail($evento_id);
-    $usuario = auth()->user();
-
-    // Guardar el archivo
-    $archivo = $request->file('archivo');
-    $nombreOriginal = $archivo->getClientOriginalName();
-    $ruta = $archivo->store('documentos_evento', 'public');
-    $tipo = $archivo->getClientOriginalExtension();
-
-    // Registrar en la tabla documentos_evento
-    $documento = \Modules\Eventos\Models\DocumentoEvento::create([
-        'evento_id' => $evento->id,
-        'user_id'   => $usuario->id,
-        'nombre'    => $nombreOriginal,
-        'ruta'      => $ruta,
-        'tipo'      => $tipo,
-    ]);
-
-    // 🔹 REGISTRAR EN NOTIFICACION_LOGS
-    \Modules\Eventos\Models\NotificacionLog::create([
-        'evento_id'    => $evento->id,
-        'user_id'      => $usuario->id,
-        'canal'        => 'sistema',
-        'destinatario' => $usuario->email ?? 'N/A',
-        'mensaje'      => "📁 {$usuario->nombre} subió el documento '{$nombreOriginal}' al evento '{$evento->titulo}'.",
-        'enviado_en'   => now(),
-        'exitoso'      => true,
-    ]);
-
-    return redirect()
-        ->back()
-        ->with('success', "✅ Documento '{$nombreOriginal}' subido correctamente y registrado en auditoría.");
-}
-
-    /**
-     * Descargar documento.
-     */
-    public function download($id)
+    public function store(Request $request, $evento_id)
     {
-        $doc = DocumentoEvento::findOrFail($id);
-        return Storage::disk('public')->download($doc->ruta, $doc->nombre);
+        $request->validate([
+            'archivo' => 'required|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:5120',
+        ]);
+
+        $evento = Event::findOrFail($evento_id);
+        $usuario = auth()->user();
+
+        $archivo = $request->file('archivo');
+        $nombreOriginal = $archivo->getClientOriginalName();
+
+        // 🔐 Nombre seguro para evitar colisiones
+        $nombreSeguro = time() . '_' . Str::slug(
+            pathinfo($nombreOriginal, PATHINFO_FILENAME)
+        );
+
+        $extension = $archivo->getClientOriginalExtension();
+
+        // 📂 Guardar archivo (local / S3 / Wasabi según FILESYSTEM_DISK)
+        $ruta = $archivo->storeAs(
+            "documentos/eventos/{$evento->id}",
+            "{$nombreSeguro}.{$extension}"
+        );
+
+        // 💾 Registrar en BD
+        DocumentoEvento::create([
+            'evento_id' => $evento->id,
+            'user_id'   => $usuario->id,
+            'nombre'    => $nombreOriginal,
+            'ruta'      => $ruta,
+            'tipo'      => $extension,
+        ]);
+
+        // 🧾 Auditoría
+        NotificacionLog::create([
+            'evento_id'    => $evento->id,
+            'user_id'      => $usuario->id,
+            'canal'        => 'sistema',
+            'destinatario' => $usuario->email ?? 'N/A',
+            'mensaje'      => "📁 {$usuario->nombre} subió el documento '{$nombreOriginal}' al evento '{$evento->titulo}'.",
+            'enviado_en'   => now(),
+            'exitoso'      => true,
+        ]);
+
+        return back()->with(
+            'success',
+            "Documento '{$nombreOriginal}' subido correctamente."
+        );
     }
 
     /**
-     * Eliminar documento.
+     * Descargar documento (seguro por evento).
      */
-    public function destroy($id)
-{
-    $documento = DocumentoEvento::with('evento', 'usuario')->findOrFail($id);
-    $usuario = auth()->user();
+    public function download($evento_id, $id)
+    {
+        $doc = DocumentoEvento::where('id', $id)
+            ->where('evento_id', $evento_id)
+            ->firstOrFail();
 
-    // Verificar permisos (solo Admin o propietario)
-    if (!$usuario->hasRole('Admin') && $usuario->id !== $documento->user_id) {
-        return back()->with('error', 'No tienes permiso para eliminar este documento.');
+        return Storage::download($doc->ruta, $doc->nombre);
     }
 
-    // Eliminar físicamente el archivo si existe
-    if ($documento->ruta && Storage::disk('public')->exists($documento->ruta)) {
-        Storage::disk('public')->delete($documento->ruta);
+    /**
+     * Eliminar documento (archivo + BD).
+     */
+    public function destroy($evento_id, $id)
+    {
+        $documento = DocumentoEvento::with('evento')
+            ->where('id', $id)
+            ->where('evento_id', $evento_id)
+            ->firstOrFail();
+
+        $usuario = auth()->user();
+
+        // 🔐 Permisos
+        if (!$usuario->hasRole('Admin') && $usuario->id !== $documento->user_id) {
+            return back()->with(
+                'error',
+                'No tienes permiso para eliminar este documento.'
+            );
+        }
+
+        // 🗑 Eliminar archivo
+        if (Storage::exists($documento->ruta)) {
+            Storage::delete($documento->ruta);
+        }
+
+        $nombreDoc = $documento->nombre;
+        $tituloEvento = $documento->evento->titulo ?? 'Evento';
+
+        // 🗑 Eliminar registro
+        $documento->delete();
+
+        // 🧾 Auditoría
+        NotificacionLog::create([
+            'evento_id'    => $evento_id,
+            'user_id'      => $usuario->id,
+            'canal'        => 'sistema',
+            'destinatario' => $usuario->email ?? 'N/A',
+            'mensaje'      => "🗑 {$usuario->nombre} eliminó el documento '{$nombreDoc}' del evento '{$tituloEvento}'.",
+            'enviado_en'   => now(),
+            'exitoso'      => true,
+        ]);
+
+        return back()->with(
+            'success',
+            "Documento '{$nombreDoc}' eliminado correctamente."
+        );
     }
-
-    // Guardar datos antes de eliminar el registro
-    $nombreDoc = $documento->nombre;
-    $tituloEvento = $documento->evento->titulo ?? 'Evento desconocido';
-
-    // Eliminar el registro
-    $documento->delete();
-
-    // 🔹 Registrar en notificacion_logs
-    NotificacionLog::create([
-        'evento_id'    => $documento->evento_id,
-        'user_id'      => $usuario->id,
-        'canal'        => 'sistema',
-        'destinatario' => $usuario->email ?? 'N/A',
-        'mensaje'      => "🗑 {$usuario->nombre} eliminó el documento '{$nombreDoc}' del evento '{$tituloEvento}'.",
-        'enviado_en'   => now(),
-        'exitoso'      => true,
-    ]);
-
-    return redirect()->back()->with('success', "🗑 Documento '{$nombreDoc}' eliminado correctamente y registrado en auditoría.");
-}
-
 }
