@@ -37,19 +37,18 @@ class Usuario extends Authenticatable
     }
 
     /**
-     * 📲 Canal WhatsApp (Twilio)
+     * 📲 Ruta oficial para WhatsApp (Laravel Notifications)
      */
-    public function routeNotificationForWhatsApp(): ?string
+    public function routeNotificationForWhatsApp()
     {
-        if (empty($this->telefono)) {
+        if (!$this->telefono) {
+            \Log::warning("❌ Usuario {$this->id} sin teléfono WhatsApp");
             return null;
         }
 
-        // Normaliza el número (ej: 3171234567 → +573171234567)
-        if (!str_starts_with($this->telefono, '+')) {
-            return '+57' . ltrim($this->telefono, '0');
-        }
-
-        return $this->telefono;
+        // Normaliza formato internacional
+        return str_starts_with($this->telefono, '+')
+            ? $this->telefono
+            : '+57' . ltrim($this->telefono, '0');
     }
 }
