@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use Modules\Eventos\Http\Controllers\EventosController;
+use App\Http\Controllers\DashboardController;
 
 
 /*
@@ -26,9 +27,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware(['auth', 'verified'])->group(function () {
 
     // Dashboard principal
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
 
     // Notificaciones (leer todas)
     Route::get('/notificaciones/leer-todas', function () {

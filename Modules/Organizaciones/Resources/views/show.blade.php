@@ -17,7 +17,14 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
                 <div class="md:col-span-1">
                     @if($organizacion->logo)
-                        <img src="{{ asset('storage/' . $organizacion->logo) }}" alt="logo" class="w-full h-auto rounded">
+                        <div class="flex justify-center items-center bg-gray-50 rounded p-4">
+                            <img 
+                                src="{{ asset('storage/' . $organizacion->logo) }}" 
+                                alt="logo"
+                                class="max-w-[180px] max-h-[180px] object-contain"
+                            >
+                        </div>
+
                     @else
                         <div class="w-full h-40 bg-gray-100 rounded flex items-center justify-center text-gray-400">
                             Sin logo

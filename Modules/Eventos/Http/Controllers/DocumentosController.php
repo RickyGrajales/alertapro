@@ -84,6 +84,38 @@ class DocumentosController extends Controller
     /**
      * Descargar documento (seguro por evento).
      */
+
+        public function preview($evento_id, $id)
+    {
+        $documento = DocumentoEvento::where('id', $id)
+            ->where('evento_id', $evento_id)
+            ->firstOrFail();
+
+        $usuario = auth()->user();
+
+        // 🔒 Seguridad: solo Admin o relacionado al evento
+        if (!$usuario->hasRole('Admin') && $usuario->id !== $documento->user_id) {
+            abort(403, 'No tienes permiso para ver este documento.');
+        }
+
+        // 🧪 Solo PDFs
+        if (strtolower($documento->tipo) !== 'pdf') {
+            return back()->with('error', 'La vista previa solo está disponible para archivos PDF.');
+        }
+
+        // 📄 Mostrar PDF en navegador
+        return response()->file(
+            Storage::disk('public')->path($documento->ruta),
+            [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="'.$documento->nombre.'"'
+            ]
+        );
+    }
+
+
+    
+
     public function download($evento_id, $id)
     {
         $doc = DocumentoEvento::where('id', $id)

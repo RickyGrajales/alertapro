@@ -42,7 +42,8 @@ Route::middleware(['web', 'auth', 'verified'])->group(function () {
     Route::prefix('eventos/{evento_id}/documentos')->group(function () {
         Route::get('/', [DocumentosController::class, 'index'])->name('documentos.index');
         Route::post('/', [DocumentosController::class, 'store'])->name('documentos.store');
-        Route::get('/descargar/{id}', [DocumentosController::class, 'download'])->name('documentos.download');
+        Route::get('/ver/{id}', [DocumentosController::class, 'preview'])->name('documentos.preview');
+        Route::get('/descargar/{id}', [DocumentosController::class, 'download'])->name('documentos.download');        
         Route::delete('/{id}', [DocumentosController::class, 'destroy'])->name('documentos.destroy');
     });
 

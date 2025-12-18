@@ -1,10 +1,12 @@
 <x-app-layout>
     <div class="max-w-4xl mx-auto bg-white p-6 shadow rounded">
+
+        {{-- Título --}}
         <h2 class="text-2xl font-bold mb-4">
             📁 Documentos del Evento: {{ $evento->titulo }}
         </h2>
 
-        <!-- Subir nuevo documento -->
+        {{-- Subir nuevo documento --}}
         <form method="POST"
               action="{{ route('documentos.store', $evento->id) }}"
               enctype="multipart/form-data"
@@ -26,13 +28,14 @@
             </button>
         </form>
 
-        <!-- Mensaje de éxito -->
+        {{-- Mensaje de éxito --}}
         @if(session('success'))
             <div class="bg-green-100 text-green-800 p-2 mb-4 rounded">
                 {{ session('success') }}
             </div>
         @endif
 
+        {{-- Tabla de documentos --}}
         @if($documentos->count())
             <table class="w-full border-collapse">
                 <thead class="bg-gray-100">
@@ -47,21 +50,47 @@
                 <tbody>
                     @foreach($documentos as $doc)
                         <tr class="border-b">
-                            <td class="p-2">{{ $doc->nombre }}</td>
-                            <td class="p-2">{{ $doc->usuario->nombre ?? '-' }}</td>
-                            <td class="p-2">{{ $doc->tipo }}</td>
 
-                            <td class="p-2 flex gap-2">
-                                <!-- Descargar -->
+                            {{-- Nombre --}}
+                            <td class="p-2">
+                                {{ $doc->nombre }}
+                            </td>
+
+                            {{-- Usuario --}}
+                            <td class="p-2">
+                                {{ $doc->usuario->nombre ?? '-' }}
+                            </td>
+
+                            {{-- Tipo --}}
+                            <td class="p-2 uppercase">
+                                {{ $doc->tipo }}
+                            </td>
+
+                            {{-- Acciones --}}
+                            <td class="p-2 flex gap-3 items-center">
+
+                                {{-- 👁 Vista previa SOLO PDF --}}
+                                @if($doc->tipo === 'pdf')
+                                    <a href="{{ route('documentos.preview', [
+                                        'evento_id' => $evento->id,
+                                        'id' => $doc->id
+                                    ]) }}"
+                                       target="_blank"
+                                       class="text-green-600 hover:underline">
+                                        👁 Ver
+                                    </a>
+                                @endif
+
+                                {{-- ⬇ Descargar --}}
                                 <a href="{{ route('documentos.download', [
                                     'evento_id' => $evento->id,
                                     'id' => $doc->id
                                 ]) }}"
                                    class="text-blue-600 hover:underline">
-                                    ⬇️ Descargar
+                                    ⬇ Descargar
                                 </a>
 
-                                <!-- Eliminar -->
+                                {{-- 🗑 Eliminar --}}
                                 @if(auth()->user()->rol === 'Admin' || auth()->id() === $doc->user_id)
                                     <form action="{{ route('documentos.destroy', [
                                         'evento_id' => $evento->id,
@@ -78,6 +107,7 @@
                                         </button>
                                     </form>
                                 @endif
+
                             </td>
                         </tr>
                     @endforeach
@@ -88,5 +118,6 @@
                 No hay documentos asociados a este evento.
             </p>
         @endif
+
     </div>
 </x-app-layout>
