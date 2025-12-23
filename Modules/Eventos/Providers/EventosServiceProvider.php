@@ -58,7 +58,7 @@ class EventosServiceProvider extends ServiceProvider
      */
     protected function registerRoutes(): void
     {
-        $this->loadRoutesFrom(module_path($this->name, 'Routes/web.php'));
+        $this->loadRoutesFrom(module_path($this->name, 'routes/web.php'));
     }
 
     /**
