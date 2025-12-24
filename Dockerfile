@@ -1,38 +1,34 @@
-FROM php:8.2-fpm
+FROM php:8.2-cli
 
-# Dependencias del sistema
 RUN apt-get update && apt-get install -y \
-    git \
-    unzip \
-    curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    libzip-dev \
-    zip \
-    nginx
+    git unzip curl libpng-dev libonig-dev libxml2-dev libzip-dev zip \
+ && docker-php-ext-install pdo pdo_mysql mbstring bcmath gd zip
 
-# Extensiones PHP
-RUN docker-php-ext-install pdo pdo_mysql mbstring bcmath gd zip
-
-# Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
 
-# Copiar proyecto
 COPY . .
 
-# Permisos Laravel
-RUN chown -R www-data:www-data /var/www \
- && chmod -R 775 storage bootstrap/cache
+# Crear carpetas necesarias para Laravel
+RUN mkdir -p storage/framework/cache \
+    storage/framework/sessions \
+    storage/framework/views \
+ && chmod -R 775 storage bootstrap/cache \
+ && chown -R www-data:www-data storage bootstrap/cache
 
-# Instalar dependencias PHP
-RUN composer install --no-dev --optimize-autoloader 
 
-# Nginx
-COPY nginx.conf /etc/nginx/nginx.conf
+RUN chmod -R 775 storage bootstrap/cache
+
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
+RUN composer install \
+    --no-dev \
+    --no-scripts \
+    --no-interaction \
+    --prefer-dist \
+    --optimize-autoloader
 
 EXPOSE 8080
 
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]
+CMD ["php", "-S", "0.0.0.0:8080", "-t", "public"]

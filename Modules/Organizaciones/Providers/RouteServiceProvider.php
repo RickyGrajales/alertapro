@@ -24,13 +24,13 @@ class RouteServiceProvider extends ServiceProvider
     protected function mapWebRoutes(): void
     {
         Route::middleware(['web'])
-            ->group(module_path($this->moduleName, 'routes/web.php'));
+            ->group(module_path($this->moduleName, '/routes/web.php'));
     }
 
     protected function mapApiRoutes(): void
     {
         Route::prefix('api/v1')
             ->middleware('api')
-            ->group(module_path($this->moduleName, 'routes/api.php'));
+            ->group(module_path($this->moduleName, '/routes/api.php'));
     }
 }
