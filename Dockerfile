@@ -1,34 +1,37 @@
-FROM php:8.2-cli
+FROM php:8.2-apache
 
+# Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
-    git unzip curl libpng-dev libonig-dev libxml2-dev libzip-dev zip \
- && docker-php-ext-install pdo pdo_mysql mbstring bcmath gd zip
+    git unzip zip libpng-dev libonig-dev libxml2-dev libzip-dev \
+    && docker-php-ext-install pdo pdo_mysql zip gd
 
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+# Habilitar mod_rewrite
+RUN a2enmod rewrite
 
+# Establecer directorio de trabajo
 WORKDIR /var/www
 
+# Copiar proyecto
 COPY . .
 
-# Crear carpetas necesarias para Laravel
+# 👉🔥 PASO CRÍTICO: crear carpetas ANTES de composer
 RUN mkdir -p storage/framework/cache \
     storage/framework/sessions \
     storage/framework/views \
- && chmod -R 775 storage bootstrap/cache \
- && chown -R www-data:www-data storage bootstrap/cache
+    bootstrap/cache
 
-
+# Permisos
 RUN chmod -R 775 storage bootstrap/cache
 
-ENV COMPOSER_ALLOW_SUPERUSER=1
+# Instalar Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-RUN composer install \
-    --no-dev \
-    --no-scripts \
-    --no-interaction \
-    --prefer-dist \
-    --optimize-autoloader
+# Instalar dependencias PHP
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+# Apache apunta a /public
+RUN sed -i 's|/var/www/html|/var/www/public|g' /etc/apache2/sites-available/000-default.conf
 
 EXPOSE 8080
 
-CMD ["php", "-S", "0.0.0.0:8080", "-t", "public"]
+CMD ["apache2-foreground"]
